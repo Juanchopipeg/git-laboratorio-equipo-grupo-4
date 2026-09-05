@@ -9,3 +9,7 @@ Integrantes:
 
 Actividad: Sistemas de Control de Versiones con Git
 
+Contribución de Pablo
+---------------------
+Aprendí a trabajar con ramas en Git, realizar commits,
+hacer push y realizar un merge hacia la rama principal.
