@@ -9,3 +9,9 @@ Integrantes:
 
 Actividad: Sistemas de Control de Versiones con Git
 
+Contribución de Juan Felipe Gonzalez Alarcon
+-------------------------
+Aprendí a crear una rama de trabajo (le puse juan) y registrar cambios con Git.
+
+
+
