@@ -12,7 +12,9 @@ Integrantes:
 4. Santiago Mazuera Nieto
 5. Danny Esteban cortes barona
 
-Propósito:
-Aplicar un flujo colaborativo básico con Git y GitHub mediante ramas,
-commits, push y merge.
+CONTRIBUCIÓN DE SANTIAGO
+========================
+Aprendí a crear ramas, registrar cambios mediante commits y compartirlos en GitHub.
+También comprendí la importancia del trabajo colaborativo con Git.
+
 
