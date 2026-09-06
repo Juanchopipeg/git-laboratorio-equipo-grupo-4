@@ -9,9 +9,16 @@ Integrantes:
 
 Actividad: Sistemas de Control de Versiones con Git
 
+
 Contribución de Juan Felipe Gonzalez Alarcon
 -------------------------
-Aprendí a crear una rama de trabajo (le puse juan) y registrar cambios con Git.
+Aprendí a crear una rama de trabajo (le puse juan) y al manejo de git, ya que
+desconocia su uso y a realizar commits.
 
 
 
+=======
+Contribución de Pablo
+---------------------
+Aprendí a trabajar con ramas en Git, realizar commits,
+hacer push y realizar un merge hacia la rama principal.
