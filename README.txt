@@ -1,3 +1,4 @@
+
 EQUIPO DE TRABAJO
 =================
 
@@ -14,3 +15,4 @@ Integrantes:
 Propósito:
 Aplicar un flujo colaborativo básico con Git y GitHub mediante ramas,
 commits, push y merge.
+
