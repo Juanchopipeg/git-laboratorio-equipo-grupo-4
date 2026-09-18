@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Médicos</title>
+</head>
+
+<body>
+
+    <h1>Listado de Médicos</h1>
+
+    <a href="/medicos/nuevo">Nuevo Médico</a>
+
+    <br><br>
+
+    <table border="1">
+
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Especialidad</th>
+            <th>Teléfono</th>
+            <th>Correo</th>
+            <th>Acciones</th>
+        </tr>
+
+        {% for medico in medicos %}
+
+        <tr>
+
+            <td>{{ medico.id }}</td>
+
+            <td>{{ medico.nombre }}</td>
+
+            <td>{{ medico.especialidad }}</td>
+
+            <td>{{ medico.telefono }}</td>
+
+            <td>{{ medico.correo }}</td>
+
+            <td>
+
+                <a href="/medicos/editar/{{ medico.id }}">
+                    Editar
+                </a>
+
+                |
+
+                <a
+                    href="/medicos/eliminar/{{ medico.id }}"
+                    onclick="return confirm('¿Desea eliminar este médico?')"
+                >
+                    Eliminar
+                </a>
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    <br>
+
+    <a href="/pacientes">
+        Ir a Pacientes
+    </a>
+
+</body>
+
+</html>

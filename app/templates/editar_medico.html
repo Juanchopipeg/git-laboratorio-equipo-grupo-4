@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Médico</title>
+</head>
+
+<body>
+
+    <h1>Editar Médico</h1>
+
+    <form method="POST">
+
+        <p>
+            <label>Nombre:</label><br>
+            <input
+                type="text"
+                name="nombre"
+                value="{{ medico.nombre }}"
+                required
+            >
+        </p>
+
+        <p>
+            <label>Especialidad:</label><br>
+            <input
+                type="text"
+                name="especialidad"
+                value="{{ medico.especialidad }}"
+                required
+            >
+        </p>
+
+        <p>
+            <label>Teléfono:</label><br>
+            <input
+                type="text"
+                name="telefono"
+                value="{{ medico.telefono }}"
+            >
+        </p>
+
+        <p>
+            <label>Correo:</label><br>
+            <input
+                type="email"
+                name="correo"
+                value="{{ medico.correo }}"
+            >
+        </p>
+
+        <button type="submit">
+            Actualizar Médico
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="/medicos">
+        Volver al listado
+    </a>
+
+</body>
+
+</html>

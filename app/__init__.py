@@ -11,9 +11,13 @@ def create_app():
     db.init_app(app)
 
     from app.models.paciente import Paciente
+    from app.models.medico import Medico
+
     from app.routes.paciente_routes import paciente_bp
+    from app.routes.medico_routes import medico_bp
 
     app.register_blueprint(paciente_bp)
+    app.register_blueprint(medico_bp)
 
     @app.route("/")
     def inicio():
