@@ -28,7 +28,12 @@
     <td>{{ paciente.documento }}</td>
     <td>
         <a href="/pacientes/editar/{{ paciente.id }}">Editar</a>
-    </td>
+    |
+        <a href="/pacientes/eliminar/{{ paciente.id }}"
+           onclick="return confirm('¿Desea eliminar este paciente?')">
+           Eliminar
+        </a>
+   </td>
         </tr>
         {% endfor %}
 

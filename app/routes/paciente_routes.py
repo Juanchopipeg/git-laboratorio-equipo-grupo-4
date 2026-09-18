@@ -33,3 +33,13 @@ def editar_paciente(id):
         "editar_paciente.html",
         paciente=paciente
     )
+    
+@paciente_bp.route("/pacientes/eliminar/<int:id>")
+def eliminar_paciente(id):
+
+    paciente = Paciente.query.get_or_404(id)
+
+    db.session.delete(paciente)
+    db.session.commit()
+
+    return redirect(url_for("paciente.listar_pacientes"))
