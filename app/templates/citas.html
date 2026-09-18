@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Citas Médicas</title>
+</head>
+
+<body>
+
+    <h1>Listado de Citas Médicas</h1>
+
+    <a href="/citas/nueva">Nueva Cita</a>
+
+    <br><br>
+
+    <table border="1">
+
+        <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Motivo</th>
+            <th>Paciente</th>
+            <th>Médico</th>
+            <th>Acciones</th>
+        </tr>
+
+        {% for cita in citas %}
+
+        <tr>
+
+            <td>{{ cita.id }}</td>
+
+            <td>{{ cita.fecha }}</td>
+
+            <td>{{ cita.hora }}</td>
+
+            <td>{{ cita.motivo }}</td>
+
+            <td>{{ cita.paciente_id }}</td>
+
+            <td>{{ cita.medico_id }}</td>
+
+            <td>
+
+                <a href="/citas/editar/{{ cita.id }}">
+                    Editar
+                </a>
+
+                |
+
+                <a
+                    href="/citas/eliminar/{{ cita.id }}"
+                    onclick="return confirm('¿Desea eliminar esta cita?')"
+                >
+                    Eliminar
+                </a>
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    <br>
+
+    <a href="/pacientes">
+        Ir a Pacientes
+    </a>
+
+    <br>
+
+    <a href="/medicos">
+        Ir a Médicos
+    </a>
+
+</body>
+
+</html>

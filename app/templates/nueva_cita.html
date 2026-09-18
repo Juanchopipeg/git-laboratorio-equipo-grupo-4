@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Nueva Cita</title>
+</head>
+
+<body>
+
+    <h1>Registrar Nueva Cita</h1>
+
+    <form method="POST">
+
+        <label>Fecha:</label>
+        <br>
+
+        <input
+            type="date"
+            name="fecha"
+            required
+        >
+
+        <br><br>
+
+        <label>Hora:</label>
+        <br>
+
+        <input
+            type="time"
+            name="hora"
+            required
+        >
+
+        <br><br>
+
+        <label>Motivo:</label>
+        <br>
+
+        <textarea
+            name="motivo"
+            rows="4"
+            cols="40"
+        ></textarea>
+
+        <br><br>
+
+        <label>Paciente:</label>
+        <br>
+
+        <select name="paciente_id" required>
+
+            <option value="">
+                Seleccione un paciente
+            </option>
+
+            {% for paciente in pacientes %}
+
+            <option value="{{ paciente.id }}">
+
+                {{ paciente.nombre }}
+                {{ paciente.apellido }}
+
+            </option>
+
+            {% endfor %}
+
+        </select>
+
+        <br><br>
+
+        <label>Médico:</label>
+        <br>
+
+        <select name="medico_id" required>
+
+            <option value="">
+                Seleccione un médico
+            </option>
+
+            {% for medico in medicos %}
+
+            <option value="{{ medico.id }}">
+
+                {{ medico.nombre }}
+                - {{ medico.especialidad }}
+
+            </option>
+
+            {% endfor %}
+
+        </select>
+
+        <br><br>
+
+        <button type="submit">
+            Guardar Cita
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="/citas">
+        Volver a Citas
+    </a>
+
+</body>
+
+</html>
