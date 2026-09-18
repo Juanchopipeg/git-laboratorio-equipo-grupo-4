@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Nuevo Paciente</title>
+</head>
+<body>
+
+    <h1>Registrar Paciente</h1>
+
+    <form method="POST">
+
+        <p>
+            <label>Nombre:</label><br>
+            <input type="text" name="nombre" required>
+        </p>
+
+        <p>
+            <label>Apellido:</label><br>
+            <input type="text" name="apellido" required>
+        </p>
+
+        <p>
+            <label>Documento:</label><br>
+            <input type="text" name="documento" required>
+        </p>
+
+        <p>
+            <label>Teléfono:</label><br>
+            <input type="text" name="telefono">
+        </p>
+
+        <p>
+            <label>Correo:</label><br>
+            <input type="email" name="correo">
+        </p>
+
+        <button type="submit">Guardar Paciente</button>
+
+    </form>
+
+    <br>
+
+    <a href="/pacientes">Volver al listado</a>
+
+</body>
+</html>
