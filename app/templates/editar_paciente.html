@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Paciente</title>
+</head>
+<body>
+
+<h1>Editar Paciente</h1>
+
+<form method="POST">
+
+    <p>
+        <label>Nombre:</label><br>
+        <input type="text" name="nombre" value="{{ paciente.nombre }}" required>
+    </p>
+
+    <p>
+        <label>Apellido:</label><br>
+        <input type="text" name="apellido" value="{{ paciente.apellido }}" required>
+    </p>
+
+    <p>
+        <label>Documento:</label><br>
+        <input type="text" name="documento" value="{{ paciente.documento }}" required>
+    </p>
+
+    <p>
+        <label>Teléfono:</label><br>
+        <input type="text" name="telefono" value="{{ paciente.telefono }}">
+    </p>
+
+    <p>
+        <label>Correo:</label><br>
+        <input type="email" name="correo" value="{{ paciente.correo }}">
+    </p>
+
+    <button type="submit">Actualizar</button>
+
+</form>
+
+<br>
+
+<a href="/pacientes">Volver al listado</a>
+
+</body>
+</html>

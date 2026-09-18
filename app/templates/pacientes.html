@@ -10,19 +10,25 @@
 <a href="/pacientes/nuevo">Nuevo Paciente</a>
 <br><br>
     <table border="1">
-        <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>Documento</th>
-        </tr>
+    <tr>
+
+    <th>ID</th>
+    <th>Nombre</th>
+    <th>Apellido</th>
+    <th>Documento</th>
+    <th>Acciones</th>
+
+    </tr>
 
         {% for paciente in pacientes %}
         <tr>
-            <td>{{ paciente.id }}</td>
-            <td>{{ paciente.nombre }}</td>
-            <td>{{ paciente.apellido }}</td>
-            <td>{{ paciente.documento }}</td>
+    <td>{{ paciente.id }}</td>
+    <td>{{ paciente.nombre }}</td>
+    <td>{{ paciente.apellido }}</td>
+    <td>{{ paciente.documento }}</td>
+    <td>
+        <a href="/pacientes/editar/{{ paciente.id }}">Editar</a>
+    </td>
         </tr>
         {% endfor %}
 

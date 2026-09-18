@@ -12,22 +12,24 @@ def listar_pacientes():
         pacientes=pacientes
     )
 
-@paciente_bp.route("/pacientes/nuevo", methods=["GET", "POST"])
-def nuevo_paciente():
+@paciente_bp.route("/pacientes/editar/<int:id>", methods=["GET", "POST"])
+def editar_paciente(id):
+
+    paciente = Paciente.query.get_or_404(id)
 
     if request.method == "POST":
 
-        paciente = Paciente(
-            nombre=request.form["nombre"],
-            apellido=request.form["apellido"],
-            documento=request.form["documento"],
-            telefono=request.form["telefono"],
-            correo=request.form["correo"]
-        )
+        paciente.nombre = request.form["nombre"]
+        paciente.apellido = request.form["apellido"]
+        paciente.documento = request.form["documento"]
+        paciente.telefono = request.form["telefono"]
+        paciente.correo = request.form["correo"]
 
-        db.session.add(paciente)
         db.session.commit()
 
         return redirect(url_for("paciente.listar_pacientes"))
 
-    return render_template("nuevo_paciente.html")
+    return render_template(
+        "editar_paciente.html",
+        paciente=paciente
+    )
