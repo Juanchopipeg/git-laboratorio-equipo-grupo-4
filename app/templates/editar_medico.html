@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <title>Editar Médico</title>
@@ -12,46 +11,80 @@
 
     <form method="POST">
 
-        <p>
-            <label>Nombre:</label><br>
-            <input
-                type="text"
-                name="nombre"
-                value="{{ medico.nombre }}"
-                required
-            >
-        </p>
+        <label>Nombre:</label>
+        <br>
 
-        <p>
-            <label>Especialidad:</label><br>
-            <input
-                type="text"
-                name="especialidad"
-                value="{{ medico.especialidad }}"
-                required
-            >
-        </p>
+        <input
+            type="text"
+            name="nombre"
+            value="{{ medico.nombre }}"
+            required
+        >
 
-        <p>
-            <label>Teléfono:</label><br>
-            <input
-                type="text"
-                name="telefono"
-                value="{{ medico.telefono }}"
-            >
-        </p>
+        <br><br>
 
-        <p>
-            <label>Correo:</label><br>
-            <input
-                type="email"
-                name="correo"
-                value="{{ medico.correo }}"
+
+        <label>Especialidad:</label>
+        <br>
+
+        <select name="especialidad_id" id="especialidad_id" required>
+
+            <option value="">
+                Seleccione una especialidad
+            </option>
+
+            {% for especialidad in especialidades %}
+
+            <option
+                value="{{ especialidad.id }}"
+                data-nombre="{{ especialidad.nombre }}"
+                {% if medico.especialidad_id == especialidad.id %}
+                    selected
+                {% endif %}
             >
-        </p>
+                {{ especialidad.nombre }}
+            </option>
+
+            {% endfor %}
+
+        </select>
+
+        <input
+            type="hidden"
+            name="especialidad"
+            id="especialidad"
+            value="{{ medico.especialidad }}"
+        >
+
+        <br><br>
+
+
+        <label>Teléfono:</label>
+        <br>
+
+        <input
+            type="text"
+            name="telefono"
+            value="{{ medico.telefono }}"
+        >
+
+        <br><br>
+
+
+        <label>Correo:</label>
+        <br>
+
+        <input
+            type="email"
+            name="correo"
+            value="{{ medico.correo }}"
+        >
+
+        <br><br>
+
 
         <button type="submit">
-            Actualizar Médico
+            Guardar Cambios
         </button>
 
     </form>
@@ -59,9 +92,29 @@
     <br>
 
     <a href="/medicos">
-        Volver al listado
+        Volver a Médicos
     </a>
 
-</body>
 
+    <script>
+
+        const especialidadSelect =
+            document.getElementById("especialidad_id");
+
+        const especialidadTexto =
+            document.getElementById("especialidad");
+
+        especialidadSelect.addEventListener("change", function() {
+
+            const opcion =
+                this.options[this.selectedIndex];
+
+            especialidadTexto.value =
+                opcion.dataset.nombre || "";
+
+        });
+
+    </script>
+
+</body>
 </html>

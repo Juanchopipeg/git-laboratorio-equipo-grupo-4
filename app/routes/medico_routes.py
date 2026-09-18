@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from app.models.medico import Medico
+from app.models.especialidad import Especialidad
 from app import db
 
 medico_bp = Blueprint("medico", __name__)
@@ -7,23 +8,21 @@ medico_bp = Blueprint("medico", __name__)
 
 @medico_bp.route("/medicos")
 def listar_medicos():
-
     medicos = Medico.query.all()
-
-    return render_template(
-        "medicos.html",
-        medicos=medicos
-    )
+    return render_template("medicos.html", medicos=medicos)
 
 
 @medico_bp.route("/medicos/nuevo", methods=["GET", "POST"])
 def nuevo_medico():
+
+    especialidades = Especialidad.query.all()
 
     if request.method == "POST":
 
         medico = Medico(
             nombre=request.form["nombre"],
             especialidad=request.form["especialidad"],
+            especialidad_id=request.form["especialidad_id"],
             telefono=request.form["telefono"],
             correo=request.form["correo"]
         )
@@ -33,7 +32,10 @@ def nuevo_medico():
 
         return redirect(url_for("medico.listar_medicos"))
 
-    return render_template("nuevo_medico.html")
+    return render_template(
+        "nuevo_medico.html",
+        especialidades=especialidades
+    )
 
 
 @medico_bp.route("/medicos/editar/<int:id>", methods=["GET", "POST"])
@@ -41,10 +43,13 @@ def editar_medico(id):
 
     medico = Medico.query.get_or_404(id)
 
+    especialidades = Especialidad.query.all()
+
     if request.method == "POST":
 
         medico.nombre = request.form["nombre"]
         medico.especialidad = request.form["especialidad"]
+        medico.especialidad_id = request.form["especialidad_id"]
         medico.telefono = request.form["telefono"]
         medico.correo = request.form["correo"]
 
@@ -54,7 +59,8 @@ def editar_medico(id):
 
     return render_template(
         "editar_medico.html",
-        medico=medico
+        medico=medico,
+        especialidades=especialidades
     )
 
 

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <title>Médicos</title>
@@ -10,7 +9,9 @@
 
     <h1>Listado de Médicos</h1>
 
-    <a href="/medicos/nuevo">Nuevo Médico</a>
+    <a href="/medicos/nuevo">
+        Nuevo Médico
+    </a>
 
     <br><br>
 
@@ -29,15 +30,29 @@
 
         <tr>
 
-            <td>{{ medico.id }}</td>
+            <td>
+                {{ medico.id }}
+            </td>
 
-            <td>{{ medico.nombre }}</td>
+            <td>
+                {{ medico.nombre }}
+            </td>
 
-            <td>{{ medico.especialidad }}</td>
+            <td>
+                {% if medico.especialidad_relacion %}
+                    {{ medico.especialidad_relacion.nombre }}
+                {% else %}
+                    {{ medico.especialidad }}
+                {% endif %}
+            </td>
 
-            <td>{{ medico.telefono }}</td>
+            <td>
+                {{ medico.telefono }}
+            </td>
 
-            <td>{{ medico.correo }}</td>
+            <td>
+                {{ medico.correo }}
+            </td>
 
             <td>
 
@@ -64,10 +79,21 @@
 
     <br>
 
+    <a href="/especialidades">
+        Ir a Especialidades
+    </a>
+
+    <br><br>
+
     <a href="/pacientes">
         Ir a Pacientes
     </a>
 
-</body>
+    <br><br>
 
+    <a href="/citas">
+        Ir a Citas
+    </a>
+
+</body>
 </html>

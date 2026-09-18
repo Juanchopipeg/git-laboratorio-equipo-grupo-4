@@ -4,41 +4,103 @@
     <meta charset="UTF-8">
     <title>Nuevo Médico</title>
 </head>
+
 <body>
 
-<h1>Registrar Médico</h1>
+    <h1>Registrar Nuevo Médico</h1>
 
-<form method="POST">
+    <form method="POST">
 
-    <p>
-        <label>Nombre:</label><br>
-        <input type="text" name="nombre" required>
-    </p>
+        <label>Nombre:</label>
+        <br>
+        <input
+            type="text"
+            name="nombre"
+            required
+        >
 
-    <p>
-        <label>Especialidad:</label><br>
-        <input type="text" name="especialidad" required>
-    </p>
+        <br><br>
 
-    <p>
-        <label>Teléfono:</label><br>
-        <input type="text" name="telefono">
-    </p>
+        <label>Especialidad:</label>
+        <br>
 
-    <p>
-        <label>Correo:</label><br>
-        <input type="email" name="correo">
-    </p>
+        <select name="especialidad_id" id="especialidad_id" required>
 
-    <button type="submit">
-        Guardar Médico
-    </button>
+            <option value="">
+                Seleccione una especialidad
+            </option>
 
-</form>
+            {% for especialidad in especialidades %}
 
-<br>
+            <option
+                value="{{ especialidad.id }}"
+                data-nombre="{{ especialidad.nombre }}"
+            >
+                {{ especialidad.nombre }}
+            </option>
 
-<a href="/medicos">Volver</a>
+            {% endfor %}
+
+        </select>
+
+        <input
+            type="hidden"
+            name="especialidad"
+            id="especialidad"
+        >
+
+        <br><br>
+
+        <label>Teléfono:</label>
+        <br>
+        <input
+            type="text"
+            name="telefono"
+        >
+
+        <br><br>
+
+        <label>Correo:</label>
+        <br>
+        <input
+            type="email"
+            name="correo"
+        >
+
+        <br><br>
+
+        <button type="submit">
+            Guardar Médico
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="/medicos">
+        Volver a Médicos
+    </a>
+
+
+    <script>
+
+        const especialidadSelect =
+            document.getElementById("especialidad_id");
+
+        const especialidadTexto =
+            document.getElementById("especialidad");
+
+        especialidadSelect.addEventListener("change", function() {
+
+            const opcion =
+                this.options[this.selectedIndex];
+
+            especialidadTexto.value =
+                opcion.dataset.nombre || "";
+
+        });
+
+    </script>
 
 </body>
 </html>

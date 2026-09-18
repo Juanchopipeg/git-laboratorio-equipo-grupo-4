@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Nueva Especialidad</title>
+</head>
+<body>
+
+    <h1>Registrar Nueva Especialidad</h1>
+
+    <form method="POST">
+
+        <label>Nombre:</label>
+        <br>
+        <input
+            type="text"
+            name="nombre"
+            required
+        >
+
+        <br><br>
+
+        <label>Descripción:</label>
+        <br>
+        <textarea
+            name="descripcion"
+            rows="4"
+            cols="40"
+        ></textarea>
+
+        <br><br>
+
+        <button type="submit">
+            Guardar Especialidad
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="/especialidades">
+        Volver a Especialidades
+    </a>
+
+</body>
+</html>

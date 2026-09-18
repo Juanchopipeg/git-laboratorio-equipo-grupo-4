@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Especialidades Médicas</title>
+</head>
+<body>
+
+    <h1>Listado de Especialidades Médicas</h1>
+
+    <a href="/especialidades/nueva">Nueva Especialidad</a>
+
+    <br><br>
+
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+        </tr>
+
+        {% for especialidad in especialidades %}
+        <tr>
+            <td>{{ especialidad.id }}</td>
+            <td>{{ especialidad.nombre }}</td>
+            <td>{{ especialidad.descripcion }}</td>
+            <td>
+                <a href="/especialidades/editar/{{ especialidad.id }}">
+                    Editar
+                </a>
+
+                |
+
+                <a
+                    href="/especialidades/eliminar/{{ especialidad.id }}"
+                    onclick="return confirm('¿Desea eliminar esta especialidad?')"
+                >
+                    Eliminar
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+
+    </table>
+
+    <br>
+
+    <a href="/medicos">Ir a Médicos</a>
+
+</body>
+</html>
