@@ -10,6 +10,54 @@
 
     <h1>Editar Cita</h1>
 
+
+    <!-- MENSAJES -->
+
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+
+        {% if mensajes %}
+
+            {% for categoria, mensaje in mensajes %}
+
+                {% if categoria == "error" %}
+
+                    <div>
+                        <p>
+                            <strong>
+                                ❌ {{ mensaje }}
+                            </strong>
+                        </p>
+                    </div>
+
+                {% elif categoria == "success" %}
+
+                    <div>
+                        <p>
+                            <strong>
+                                ✅ {{ mensaje }}
+                            </strong>
+                        </p>
+                    </div>
+
+                {% else %}
+
+                    <div>
+                        <p>
+                            <strong>
+                                {{ mensaje }}
+                            </strong>
+                        </p>
+                    </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
     <form method="POST">
 
         <label>Fecha:</label>
@@ -24,6 +72,7 @@
 
         <br><br>
 
+
         <label>Hora:</label>
         <br>
 
@@ -36,6 +85,7 @@
 
         <br><br>
 
+
         <label>Motivo:</label>
         <br>
 
@@ -46,6 +96,7 @@
         >{{ cita.motivo }}</textarea>
 
         <br><br>
+
 
         <label>Paciente:</label>
         <br>
@@ -72,6 +123,7 @@
 
         <br><br>
 
+
         <label>Médico:</label>
         <br>
 
@@ -87,7 +139,18 @@
             >
 
                 {{ medico.nombre }}
-                - {{ medico.especialidad }}
+
+                -
+
+                {% if medico.especialidad_relacion %}
+
+                    {{ medico.especialidad_relacion.nombre }}
+
+                {% else %}
+
+                    {{ medico.especialidad }}
+
+                {% endif %}
 
             </option>
 
@@ -97,11 +160,13 @@
 
         <br><br>
 
+
         <button type="submit">
             Guardar Cambios
         </button>
 
     </form>
+
 
     <br>
 

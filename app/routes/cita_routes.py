@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+
 from app.models.cita import Cita
 from app.models.paciente import Paciente
 from app.models.medico import Medico
@@ -11,11 +12,29 @@ cita_bp = Blueprint("cita", __name__)
 @cita_bp.route("/citas")
 def listar_citas():
 
-    citas = Cita.query.all()
+    paciente_id = request.args.get("paciente_id")
+    medico_id = request.args.get("medico_id")
+
+    pacientes = Paciente.query.all()
+    medicos = Medico.query.all()
+
+    consulta = Cita.query
+
+    if paciente_id:
+        consulta = consulta.filter_by(paciente_id=paciente_id)
+
+    if medico_id:
+        consulta = consulta.filter_by(medico_id=medico_id)
+
+    citas = consulta.all()
 
     return render_template(
         "citas.html",
-        citas=citas
+        citas=citas,
+        pacientes=pacientes,
+        medicos=medicos,
+        paciente_id=paciente_id,
+        medico_id=medico_id
     )
 
 
@@ -27,18 +46,54 @@ def nueva_cita():
 
     if request.method == "POST":
 
+        fecha = request.form["fecha"]
+        hora = request.form["hora"]
+        motivo = request.form["motivo"]
+        paciente_id = request.form["paciente_id"]
+        medico_id = request.form["medico_id"]
+
+        # Verificar si el médico ya tiene una cita
+        # en la misma fecha y hora.
+        cita_existente = Cita.query.filter_by(
+            fecha=fecha,
+            hora=hora,
+            medico_id=medico_id
+        ).first()
+
+        if cita_existente:
+
+            flash(
+                "El médico ya tiene una cita reservada "
+                "para esa fecha y hora.",
+                "error"
+            )
+
+            return render_template(
+                "nueva_cita.html",
+                pacientes=pacientes,
+                medicos=medicos
+            )
+
+        # Crear la nueva cita
         cita = Cita(
-            fecha=request.form["fecha"],
-            hora=request.form["hora"],
-            motivo=request.form["motivo"],
-            paciente_id=request.form["paciente_id"],
-            medico_id=request.form["medico_id"]
+            fecha=fecha,
+            hora=hora,
+            motivo=motivo,
+            paciente_id=paciente_id,
+            medico_id=medico_id
         )
 
         db.session.add(cita)
         db.session.commit()
 
-        return redirect(url_for("cita.listar_citas"))
+        flash(
+            "La cita fue registrada correctamente.",
+            "success"
+        )
+
+        return redirect(
+            url_for("cita.listar_citas")
+        )
 
     return render_template(
         "nueva_cita.html",
@@ -57,15 +112,53 @@ def editar_cita(id):
 
     if request.method == "POST":
 
-        cita.fecha = request.form["fecha"]
-        cita.hora = request.form["hora"]
-        cita.motivo = request.form["motivo"]
-        cita.paciente_id = request.form["paciente_id"]
-        cita.medico_id = request.form["medico_id"]
+        fecha = request.form["fecha"]
+        hora = request.form["hora"]
+        motivo = request.form["motivo"]
+        paciente_id = request.form["paciente_id"]
+        medico_id = request.form["medico_id"]
+
+        # Verificar si existe OTRA cita
+        # con el mismo médico, fecha y hora.
+        cita_existente = Cita.query.filter(
+            Cita.fecha == fecha,
+            Cita.hora == hora,
+            Cita.medico_id == medico_id,
+            Cita.id != cita.id
+        ).first()
+
+        if cita_existente:
+
+            flash(
+                "El médico ya tiene otra cita reservada "
+                "para esa fecha y hora.",
+                "error"
+            )
+
+            return render_template(
+                "editar_cita.html",
+                cita=cita,
+                pacientes=pacientes,
+                medicos=medicos
+            )
+
+        # Actualizar la cita
+        cita.fecha = fecha
+        cita.hora = hora
+        cita.motivo = motivo
+        cita.paciente_id = paciente_id
+        cita.medico_id = medico_id
 
         db.session.commit()
 
-        return redirect(url_for("cita.listar_citas"))
+        flash(
+            "La cita fue actualizada correctamente.",
+            "success"
+        )
+
+        return redirect(
+            url_for("cita.listar_citas")
+        )
 
     return render_template(
         "editar_cita.html",
@@ -83,4 +176,49 @@ def eliminar_cita(id):
     db.session.delete(cita)
     db.session.commit()
 
-    return redirect(url_for("cita.listar_citas"))
+    flash(
+        "La cita fue cancelada correctamente.",
+        "success"
+    )
+
+    return redirect(
+        url_for("cita.listar_citas")
+    )
+    
+@cita_bp.route("/disponibilidad", methods=["GET", "POST"])
+def disponibilidad():
+
+    medicos = Medico.query.all()
+
+    citas = []
+
+    medico_seleccionado = None
+
+    fecha_seleccionada = None
+
+    if request.method == "POST":
+
+        medico_id = request.form["medico_id"]
+
+        fecha = request.form["fecha"]
+
+        medico_seleccionado = Medico.query.get_or_404(
+            medico_id
+        )
+
+        fecha_seleccionada = fecha
+
+        citas = Cita.query.filter_by(
+            medico_id=medico_id,
+            fecha=fecha
+        ).order_by(
+            Cita.hora
+        ).all()
+
+    return render_template(
+        "disponibilidad.html",
+        medicos=medicos,
+        citas=citas,
+        medico_seleccionado=medico_seleccionado,
+        fecha_seleccionada=fecha_seleccionada
+    )

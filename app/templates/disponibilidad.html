@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Disponibilidad Médica</title>
+</head>
+
+<body>
+
+    <h1>Consultar Disponibilidad Médica</h1>
+
+    <form method="POST">
+
+        <label>Médico:</label>
+        <br>
+
+        <select name="medico_id" required>
+
+            <option value="">
+                Seleccione un médico
+            </option>
+
+            {% for medico in medicos %}
+
+            <option
+                value="{{ medico.id }}"
+                {% if medico_seleccionado and medico.id == medico_seleccionado.id %}
+                    selected
+                {% endif %}
+            >
+
+                {{ medico.nombre }}
+
+                -
+
+                {% if medico.especialidad_relacion %}
+
+                    {{ medico.especialidad_relacion.nombre }}
+
+                {% else %}
+
+                    {{ medico.especialidad }}
+
+                {% endif %}
+
+            </option>
+
+            {% endfor %}
+
+        </select>
+
+        <br><br>
+
+        <label>Fecha:</label>
+        <br>
+
+        <input
+            type="date"
+            name="fecha"
+            value="{{ fecha_seleccionada or '' }}"
+            required
+        >
+
+        <br><br>
+
+        <button type="submit">
+            Consultar Disponibilidad
+        </button>
+
+    </form>
+
+    <br>
+
+    {% if medico_seleccionado and fecha_seleccionada %}
+
+        <h2>
+            Disponibilidad de
+            {{ medico_seleccionado.nombre }}
+            para el día
+            {{ fecha_seleccionada }}
+        </h2>
+
+        {% if citas %}
+
+            <h3>Horarios ocupados</h3>
+
+            <table border="1">
+
+                <tr>
+                    <th>Hora</th>
+                    <th>Paciente</th>
+                    <th>Motivo</th>
+                    <th>Estado</th>
+                </tr>
+
+                {% for cita in citas %}
+
+                <tr>
+
+                    <td>
+                        {{ cita.hora }}
+                    </td>
+
+                    <td>
+                        {{ cita.paciente.nombre }}
+                        {{ cita.paciente.apellido }}
+                    </td>
+
+                    <td>
+                        {{ cita.motivo }}
+                    </td>
+
+                    <td>
+                        OCUPADA
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+        {% else %}
+
+            <p>
+                No hay citas registradas para este médico
+                en la fecha seleccionada.
+            </p>
+
+            <p>
+                Todos los horarios están disponibles.
+            </p>
+
+        {% endif %}
+
+    {% endif %}
+
+    <br>
+
+    <a href="/citas">
+        Volver a Citas
+    </a>
+
+</body>
+
+</html>

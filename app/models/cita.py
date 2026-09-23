@@ -33,3 +33,13 @@ class Cita(db.Model):
         db.ForeignKey("medico.id"),
         nullable=False
     )
+
+    paciente = db.relationship(
+        "Paciente",
+        backref="citas"
+    )
+
+    medico = db.relationship(
+        "Medico",
+        backref="citas"
+    )

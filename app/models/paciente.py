@@ -1,5 +1,11 @@
 from app import db
 
+citas = db.relationship(
+    "Cita",
+    backref="paciente",
+    lazy=True
+)
+
 class Paciente(db.Model):
     __tablename__ = "pacientes"
 
