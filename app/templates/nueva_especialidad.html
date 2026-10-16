@@ -1,46 +1,45 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Nueva Especialidad</title>
-</head>
-<body>
 
-    <h1>Registrar Nueva Especialidad</h1>
+{% extends "base.html" %}
 
-    <form method="POST">
+{% block title %}Nueva especialidad{% endblock %}
 
-        <label>Nombre:</label>
-        <br>
-        <input
-            type="text"
-            name="nombre"
-            required
-        >
+{% block content %}
 
-        <br><br>
+<h2>Registrar nueva especialidad médica</h2>
 
-        <label>Descripción:</label>
-        <br>
-        <textarea
-            name="descripcion"
-            rows="4"
-            cols="40"
-        ></textarea>
+<form method="POST">
 
-        <br><br>
-
-        <button type="submit">
-            Guardar Especialidad
-        </button>
-
-    </form>
-
+    <label for="nombre">Nombre:</label>
     <br>
+    <input
+        type="text"
+        id="nombre"
+        name="nombre"
+        required
+    >
 
-    <a href="/especialidades">
-        Volver a Especialidades
-    </a>
+    <br><br>
 
-</body>
-</html>
+    <label for="descripcion">Descripción:</label>
+    <br>
+    <textarea
+        id="descripcion"
+        name="descripcion"
+        rows="4"
+        cols="40"
+        placeholder="Escriba una descripción (opcional)"
+    ></textarea>
+
+    <br><br>
+
+    <button type="submit">Guardar especialidad</button>
+
+</form>
+
+<br>
+
+<a href="{{ url_for('especialidad.listar_especialidades') }}">
+    Volver al listado de especialidades
+</a>
+
+{% endblock %}

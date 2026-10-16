@@ -38,6 +38,9 @@ def nuevo_paciente():
         documento = request.form.get("documento", "").strip()
         telefono = request.form.get("telefono", "").strip()
         correo = request.form.get("correo", "").strip()
+        historial_clinico = request.form.get(
+            "historial_clinico", ""
+        ).strip()
 
         # Validar campos obligatorios
         if not nombre or not apellido or not documento:
@@ -47,7 +50,7 @@ def nuevo_paciente():
             )
             return render_template("nuevo_paciente.html")
 
-        # Comprobar si la cédula ya existe
+        # Comprobar si el documento ya existe
         paciente_existente = Paciente.query.filter_by(
             documento=documento
         ).first()
@@ -64,7 +67,8 @@ def nuevo_paciente():
             apellido=apellido,
             documento=documento,
             telefono=telefono or None,
-            correo=correo or None
+            correo=correo or None,
+            historial_clinico=historial_clinico or None
         )
 
         try:
@@ -118,6 +122,9 @@ def editar_paciente(id):
         documento = request.form.get("documento", "").strip()
         telefono = request.form.get("telefono", "").strip()
         correo = request.form.get("correo", "").strip()
+        historial_clinico = request.form.get(
+            "historial_clinico", ""
+        ).strip()
 
         # Validar campos obligatorios
         if not nombre or not apellido or not documento:
@@ -131,7 +138,7 @@ def editar_paciente(id):
                 paciente=paciente
             )
 
-        # Comprobar si otro paciente tiene la misma cédula
+        # Comprobar si otro paciente tiene el mismo documento
         paciente_existente = Paciente.query.filter(
             Paciente.documento == documento,
             Paciente.id != paciente.id
@@ -153,6 +160,7 @@ def editar_paciente(id):
         paciente.documento = documento
         paciente.telefono = telefono or None
         paciente.correo = correo or None
+        paciente.historial_clinico = historial_clinico or None
 
         try:
             db.session.commit()

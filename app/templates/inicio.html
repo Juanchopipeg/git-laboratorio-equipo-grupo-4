@@ -1,0 +1,18 @@
+
+{% extends "base.html" %}
+
+{% block title %}Inicio - Sistema de Citas Médicas{% endblock %}
+
+{% block content %}
+    <h2>Bienvenido al Sistema de Citas Médicas</h2>
+
+    <p>Desde aquí puedes administrar la información del sistema.</p>
+
+    <ul>
+        <li><a href="{{ url_for('paciente.listar_pacientes') }}">Gestionar pacientes</a></li>
+        <li><a href="{{ url_for('medico.listar_medicos') }}">Gestionar médicos</a></li>
+        <li><a href="{{ url_for('especialidad.listar_especialidades') }}">Gestionar especialidades</a></li>
+        <li><a href="{{ url_for('cita.listar_citas') }}">Gestionar citas</a></li>
+        <li><a href="{{ url_for('cita.disponibilidad') }}">Consultar disponibilidad</a></li>
+    </ul>
+{% endblock %}

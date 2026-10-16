@@ -1,179 +1,115 @@
-<!DOCTYPE html>
-<html lang="es">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Editar Cita</title>
-</head>
+{% extends "base.html" %}
 
-<body>
+{% block title %}Editar cita médica{% endblock %}
 
-    <h1>Editar Cita</h1>
+{% block content %}
 
+<h2>Editar cita médica</h2>
 
-    <!-- MENSAJES -->
+{% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% if mensajes %}
+        {% for categoria, mensaje in mensajes %}
+            <div>
+                <p>
+                    <strong>
+                        {% if categoria == "error" %}
+                            ❌
+                        {% elif categoria == "success" %}
+                            ✅
+                        {% endif %}
+                        {{ mensaje }}
+                    </strong>
+                </p>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
 
-    {% with mensajes = get_flashed_messages(with_categories=true) %}
+<form method="POST">
 
-        {% if mensajes %}
+    <label for="fecha">Fecha:</label>
+    <br>
+    <input
+        type="date"
+        id="fecha"
+        name="fecha"
+        value="{{ cita.fecha }}"
+        required
+    >
 
-            {% for categoria, mensaje in mensajes %}
+    <br><br>
 
-                {% if categoria == "error" %}
+    <label for="hora">Hora:</label>
+    <br>
+    <input
+        type="time"
+        id="hora"
+        name="hora"
+        value="{{ cita.hora }}"
+        required
+    >
 
-                    <div>
-                        <p>
-                            <strong>
-                                ❌ {{ mensaje }}
-                            </strong>
-                        </p>
-                    </div>
+    <br><br>
 
-                {% elif categoria == "success" %}
+    <label for="motivo">Motivo:</label>
+    <br>
+    <textarea
+        id="motivo"
+        name="motivo"
+        rows="4"
+        cols="40"
+    >{{ cita.motivo or '' }}</textarea>
 
-                    <div>
-                        <p>
-                            <strong>
-                                ✅ {{ mensaje }}
-                            </strong>
-                        </p>
-                    </div>
+    <br><br>
 
-                {% else %}
-
-                    <div>
-                        <p>
-                            <strong>
-                                {{ mensaje }}
-                            </strong>
-                        </p>
-                    </div>
-
-                {% endif %}
-
-            {% endfor %}
-
-        {% endif %}
-
-    {% endwith %}
-
-
-    <form method="POST">
-
-        <label>Fecha:</label>
-        <br>
-
-        <input
-            type="date"
-            name="fecha"
-            value="{{ cita.fecha }}"
-            required
-        >
-
-        <br><br>
-
-
-        <label>Hora:</label>
-        <br>
-
-        <input
-            type="time"
-            name="hora"
-            value="{{ cita.hora }}"
-            required
-        >
-
-        <br><br>
-
-
-        <label>Motivo:</label>
-        <br>
-
-        <textarea
-            name="motivo"
-            rows="4"
-            cols="40"
-        >{{ cita.motivo }}</textarea>
-
-        <br><br>
-
-
-        <label>Paciente:</label>
-        <br>
-
-        <select name="paciente_id" required>
-
-            {% for paciente in pacientes %}
-
+    <label for="paciente_id">Paciente:</label>
+    <br>
+    <select name="paciente_id" id="paciente_id" required>
+        {% for paciente in pacientes %}
             <option
                 value="{{ paciente.id }}"
                 {% if paciente.id == cita.paciente_id %}
                     selected
                 {% endif %}
             >
-
-                {{ paciente.nombre }}
-                {{ paciente.apellido }}
-
+                {{ paciente.nombre }} {{ paciente.apellido }}
             </option>
+        {% endfor %}
+    </select>
 
-            {% endfor %}
+    <br><br>
 
-        </select>
-
-        <br><br>
-
-
-        <label>Médico:</label>
-        <br>
-
-        <select name="medico_id" required>
-
-            {% for medico in medicos %}
-
+    <label for="medico_id">Médico:</label>
+    <br>
+    <select name="medico_id" id="medico_id" required>
+        {% for medico in medicos %}
             <option
                 value="{{ medico.id }}"
                 {% if medico.id == cita.medico_id %}
                     selected
                 {% endif %}
             >
-
-                {{ medico.nombre }}
-
-                -
-
+                {{ medico.nombre }} -
                 {% if medico.especialidad_relacion %}
-
                     {{ medico.especialidad_relacion.nombre }}
-
                 {% else %}
-
                     {{ medico.especialidad }}
-
                 {% endif %}
-
             </option>
+        {% endfor %}
+    </select>
 
-            {% endfor %}
+    <br><br>
 
-        </select>
+    <button type="submit">Guardar cambios</button>
 
-        <br><br>
+</form>
 
+<br>
 
-        <button type="submit">
-            Guardar Cambios
-        </button>
+<a href="{{ url_for('cita.listar_citas') }}">
+    Volver al listado de citas
+</a>
 
-    </form>
-
-
-    <br>
-
-    <a href="/citas">
-        Volver a Citas
-    </a>
-
-</body>
-
-</html>
+{% endblock %}

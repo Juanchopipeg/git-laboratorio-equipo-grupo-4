@@ -1,292 +1,126 @@
-<!DOCTYPE html>
-<html lang="es">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Citas Médicas</title>
-</head>
+{% extends "base.html" %}
 
-<body>
+{% block title %}Citas médicas{% endblock %}
 
-    <h1>Listado de Citas Médicas</h1>
+{% block content %}
 
+<h2>Listado de citas médicas</h2>
 
-    <!-- MENSAJES -->
+{% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% if mensajes %}
+        {% for categoria, mensaje in mensajes %}
+            <p style="color: {% if categoria == 'error' %}red{% else %}green{% endif %};">
+                {{ mensaje }}
+            </p>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
 
-    {% with mensajes = get_flashed_messages(with_categories=true) %}
+<p>
+    <a href="{{ url_for('cita.nueva_cita') }}">Registrar nueva cita</a>
+    |
+    <a href="{{ url_for('cita.disponibilidad') }}">Consultar disponibilidad</a>
+</p>
 
-        {% if mensajes %}
+<h3>Buscar citas</h3>
 
-            {% for categoria, mensaje in mensajes %}
+<form method="GET" action="{{ url_for('cita.listar_citas') }}">
 
-                {% if categoria == "error" %}
-
-                    <div>
-                        <p>
-                            <strong>
-                                ❌ {{ mensaje }}
-                            </strong>
-                        </p>
-                    </div>
-
-                {% elif categoria == "success" %}
-
-                    <div>
-                        <p>
-                            <strong>
-                                ✅ {{ mensaje }}
-                            </strong>
-                        </p>
-                    </div>
-
-                {% else %}
-
-                    <div>
-                        <p>
-                            <strong>
-                                {{ mensaje }}
-                            </strong>
-                        </p>
-                    </div>
-
-                {% endif %}
-
-            {% endfor %}
-
-        {% endif %}
-
-    {% endwith %}
-
-
-    <!-- OPCIONES -->
-
-    <a href="/citas/nueva">
-        Nueva Cita
-    </a>
-
-    <br><br>
-
-    <a href="/disponibilidad">
-        Consultar Disponibilidad Médica
-    </a>
-
-    <br><br>
-
-
-    <!-- FILTROS DE BÚSQUEDA -->
-
-    <h2>Buscar Citas</h2>
-
-    <form method="GET" action="/citas">
-
-        <label>
-            Buscar por paciente:
-        </label>
-
-        <br>
-
-        <select name="paciente_id">
-
-            <option value="">
-                Todos los pacientes
-            </option>
+    <p>
+        <label for="paciente_id">Paciente:</label>
+        <select name="paciente_id" id="paciente_id">
+            <option value="">Todos los pacientes</option>
 
             {% for paciente in pacientes %}
-
                 <option
                     value="{{ paciente.id }}"
-                    {% if paciente_id and paciente.id|string == paciente_id|string %}
-                        selected
-                    {% endif %}
+                    {% if paciente_id|string == paciente.id|string %}selected{% endif %}
                 >
-
-                    {{ paciente.nombre }}
-                    {{ paciente.apellido }}
-
+                    {{ paciente.nombre }} {{ paciente.apellido }}
                 </option>
-
             {% endfor %}
-
         </select>
+    </p>
 
-        <br><br>
-
-
-        <label>
-            Buscar por médico:
-        </label>
-
-        <br>
-
-        <select name="medico_id">
-
-            <option value="">
-                Todos los médicos
-            </option>
+    <p>
+        <label for="medico_id">Médico:</label>
+        <select name="medico_id" id="medico_id">
+            <option value="">Todos los médicos</option>
 
             {% for medico in medicos %}
-
                 <option
                     value="{{ medico.id }}"
-                    {% if medico_id and medico.id|string == medico_id|string %}
-                        selected
-                    {% endif %}
+                    {% if medico_id|string == medico.id|string %}selected{% endif %}
                 >
-
                     {{ medico.nombre }}
-
-                    -
-
-                    {% if medico.especialidad_relacion %}
-
-                        {{ medico.especialidad_relacion.nombre }}
-
-                    {% else %}
-
-                        {{ medico.especialidad }}
-
-                    {% endif %}
-
                 </option>
-
             {% endfor %}
-
         </select>
+    </p>
 
-        <br><br>
+    <button type="submit">Buscar</button>
+    <a href="{{ url_for('cita.listar_citas') }}">Limpiar filtros</a>
 
+</form>
 
-        <button type="submit">
-            Buscar Citas
-        </button>
+<h3>Citas registradas</h3>
 
-        <br><br>
+{% if citas %}
 
-        <a href="/citas">
-            Limpiar búsqueda
-        </a>
-
-    </form>
-
-
-    <br>
-
-
-    <!-- TABLA DE CITAS -->
-
-    <h2>Citas Registradas</h2>
-
-    {% if citas %}
-
-        <table border="1">
-
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
             <tr>
-
                 <th>ID</th>
-
-                <th>Fecha</th>
-
-                <th>Hora</th>
-
-                <th>Motivo</th>
-
                 <th>Paciente</th>
-
                 <th>Médico</th>
-
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Motivo</th>
                 <th>Acciones</th>
-
             </tr>
+        </thead>
 
-
+        <tbody>
             {% for cita in citas %}
+                <tr>
+                    <td>{{ cita.id }}</td>
 
-            <tr>
+                    <td>
+                        {{ cita.paciente.nombre }}
+                        {{ cita.paciente.apellido }}
+                    </td>
 
-                <td>
-                    {{ cita.id }}
-                </td>
+                    <td>{{ cita.medico.nombre }}</td>
+                    <td>{{ cita.fecha }}</td>
+                    <td>{{ cita.hora }}</td>
+                    <td>{{ cita.motivo or 'Sin motivo indicado' }}</td>
 
-                <td>
-                    {{ cita.fecha }}
-                </td>
+                    <td>
+                        <a href="{{ url_for('cita.editar_cita', id=cita.id) }}">
+                            Editar
+                        </a>
 
-                <td>
-                    {{ cita.hora }}
-                </td>
+                        |
 
-                <td>
-                    {{ cita.motivo }}
-                </td>
-
-                <td>
-
-                    {{ cita.paciente.nombre }}
-                    {{ cita.paciente.apellido }}
-
-                </td>
-
-                <td>
-
-                    {{ cita.medico.nombre }}
-
-                </td>
-
-                <td>
-
-                    <a href="/citas/editar/{{ cita.id }}">
-                        Editar
-                    </a>
-
-                    |
-
-                    <a
-                        href="/citas/eliminar/{{ cita.id }}"
-                        onclick="return confirm('¿Desea cancelar esta cita?')"
-                    >
-                        Cancelar
-                    </a>
-
-                </td>
-
-            </tr>
-
+                        <form
+                            action="{{ url_for('cita.eliminar_cita', id=cita.id) }}"
+                            method="POST"
+                            style="display: inline;"
+                            onsubmit="return confirm('¿Desea cancelar esta cita?');"
+                        >
+                            <button type="submit">Cancelar cita</button>
+                        </form>
+                    </td>
+                </tr>
             {% endfor %}
+        </tbody>
+    </table>
 
-        </table>
+{% else %}
 
-    {% else %}
+    <p>No se encontraron citas con los filtros seleccionados.</p>
 
-        <p>
-            No se encontraron citas con los filtros seleccionados.
-        </p>
+{% endif %}
 
-    {% endif %}
-
-
-    <br>
-
-
-    <!-- NAVEGACIÓN -->
-
-    <a href="/pacientes">
-        Ir a Pacientes
-    </a>
-
-    <br><br>
-
-
-    <a href="/medicos">
-        Ir a Médicos
-    </a>
-
-    <br><br>
-
-
-    <a href="/especialidades">
-        Ir a Especialidades
-    </a>
-
-</body>
-
-</html>
+{% endblock %}

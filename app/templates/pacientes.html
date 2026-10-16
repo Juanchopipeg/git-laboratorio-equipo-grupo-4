@@ -1,13 +1,12 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Pacientes</title>
-</head>
-<body>
 
-    <h1>Listado de Pacientes</h1>
-    
+{% extends "base.html" %}
+
+{% block title %}Listado de Pacientes{% endblock %}
+
+{% block content %}
+
+<h2>Listado de Pacientes</h2>
+
 {% with mensajes = get_flashed_messages(with_categories=true) %}
     {% if mensajes %}
         {% for categoria, mensaje in mensajes %}
@@ -18,39 +17,62 @@
     {% endif %}
 {% endwith %}
 
-<a href="/pacientes/nuevo">Nuevo Paciente</a>
-<br><br>
-    <table border="1">
-    <tr>
+<p>
+    <a href="{{ url_for('paciente.nuevo_paciente') }}">
+        Registrar nuevo paciente
+    </a>
+</p>
 
-    <th>ID</th>
-    <th>Nombre</th>
-    <th>Apellido</th>
-    <th>Documento</th>
-    <th>Acciones</th>
+{% if pacientes %}
+    <div style="overflow-x: auto;">
+        <table border="1" cellpadding="8" cellspacing="0"
+               style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Documento</th>
+                    <th>Teléfono</th>
+                    <th>Correo</th>
+                    <th>Historial clínico</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
 
-    </tr>
+            <tbody>
+                {% for paciente in pacientes %}
+                    <tr>
+                        <td>{{ paciente.id }}</td>
+                        <td>{{ paciente.nombre }}</td>
+                        <td>{{ paciente.apellido }}</td>
+                        <td>{{ paciente.documento }}</td>
+                        <td>{{ paciente.telefono or 'No registrado' }}</td>
+                        <td>{{ paciente.correo or 'No registrado' }}</td>
+                        <td>
+                            {{ paciente.historial_clinico or 'Sin historial registrado' }}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('paciente.editar_paciente', id=paciente.id) }}">
+                                Editar
+                            </a>
 
-        {% for paciente in pacientes %}
-        <tr>
-    <td>{{ paciente.id }}</td>
-    <td>{{ paciente.nombre }}</td>
-    <td>{{ paciente.apellido }}</td>
-    <td>{{ paciente.documento }}</td>
-    <td>
-        <a href="/pacientes/editar/{{ paciente.id }}">Editar</a>
-    |
-        
-      <form action="/pacientes/eliminar/{{ paciente.id }}" method="POST" style="display:inline;"
-            onsubmit="return confirm('¿Desea eliminar este paciente?')">
-        <button type="submit">Eliminar</button>
-      </form>
+                            <form
+                                action="{{ url_for('paciente.eliminar_paciente', id=paciente.id) }}"
+                                method="POST"
+                                style="display: inline;"
+                                onsubmit="return confirm('¿Desea eliminar este paciente?');"
+                            >
+                                <button type="submit">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p>No hay pacientes registrados.</p>
+{% endif %}
 
-   </td>
-        </tr>
-        {% endfor %}
-
-    </table>
-
-</body>
-</html>
+{% endblock %}

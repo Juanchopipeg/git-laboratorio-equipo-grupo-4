@@ -1,40 +1,33 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Editar Médico</title>
-</head>
 
-<body>
+{% extends "base.html" %}
 
-    <h1>Editar Médico</h1>
+{% block title %}Editar médico{% endblock %}
 
-    <form method="POST">
+{% block content %}
 
-        <label>Nombre:</label>
-        <br>
+<h2>Editar médico</h2>
 
-        <input
-            type="text"
-            name="nombre"
-            value="{{ medico.nombre }}"
-            required
-        >
+<form method="POST">
 
-        <br><br>
+    <label for="nombre">Nombre:</label>
+    <br>
+    <input
+        type="text"
+        id="nombre"
+        name="nombre"
+        value="{{ medico.nombre }}"
+        required
+    >
 
+    <br><br>
 
-        <label>Especialidad:</label>
-        <br>
+    <label for="especialidad_id">Especialidad:</label>
+    <br>
 
-        <select name="especialidad_id" id="especialidad_id" required>
+    <select name="especialidad_id" id="especialidad_id" required>
+        <option value="">Seleccione una especialidad</option>
 
-            <option value="">
-                Seleccione una especialidad
-            </option>
-
-            {% for especialidad in especialidades %}
-
+        {% for especialidad in especialidades %}
             <option
                 value="{{ especialidad.id }}"
                 data-nombre="{{ especialidad.nombre }}"
@@ -44,77 +37,62 @@
             >
                 {{ especialidad.nombre }}
             </option>
+        {% endfor %}
+    </select>
 
-            {% endfor %}
+    <input
+        type="hidden"
+        name="especialidad"
+        id="especialidad"
+        value="{{ medico.especialidad }}"
+    >
 
-        </select>
+    <br><br>
 
-        <input
-            type="hidden"
-            name="especialidad"
-            id="especialidad"
-            value="{{ medico.especialidad }}"
-        >
-
-        <br><br>
-
-
-        <label>Teléfono:</label>
-        <br>
-
-        <input
-            type="text"
-            name="telefono"
-            value="{{ medico.telefono }}"
-        >
-
-        <br><br>
-
-
-        <label>Correo:</label>
-        <br>
-
-        <input
-            type="email"
-            name="correo"
-            value="{{ medico.correo }}"
-        >
-
-        <br><br>
-
-
-        <button type="submit">
-            Guardar Cambios
-        </button>
-
-    </form>
-
+    <label for="telefono">Teléfono:</label>
     <br>
+    <input
+        type="text"
+        id="telefono"
+        name="telefono"
+        value="{{ medico.telefono or '' }}"
+    >
 
-    <a href="/medicos">
-        Volver a Médicos
-    </a>
+    <br><br>
 
+    <label for="correo">Correo:</label>
+    <br>
+    <input
+        type="email"
+        id="correo"
+        name="correo"
+        value="{{ medico.correo or '' }}"
+    >
 
-    <script>
+    <br><br>
 
-        const especialidadSelect =
-            document.getElementById("especialidad_id");
+    <button type="submit">Guardar cambios</button>
 
-        const especialidadTexto =
-            document.getElementById("especialidad");
+</form>
 
-        especialidadSelect.addEventListener("change", function() {
+<br>
 
-            const opcion =
-                this.options[this.selectedIndex];
+<a href="{{ url_for('medico.listar_medicos') }}">
+    Volver al listado de médicos
+</a>
 
-            especialidadTexto.value =
-                opcion.dataset.nombre || "";
+<script>
+    const especialidadSelect =
+        document.getElementById("especialidad_id");
 
-        });
+    const especialidadTexto =
+        document.getElementById("especialidad");
 
-    </script>
+    especialidadSelect.addEventListener("change", function () {
+        const opcion = this.options[this.selectedIndex];
 
-</body>
-</html>
+        especialidadTexto.value = opcion.dataset.nombre || "";
+    });
+</script>
+
+{% endblock %}

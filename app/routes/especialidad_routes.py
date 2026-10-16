@@ -1,16 +1,15 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from sqlalchemy.exc import SQLAlchemyError
 from app.models.especialidad import Especialidad
 from app import db
-
 
 especialidad_bp = Blueprint("especialidad", __name__)
 
 
 @especialidad_bp.route("/especialidades")
 def listar_especialidades():
-
     especialidades = Especialidad.query.all()
-
     return render_template(
         "especialidades.html",
         especialidades=especialidades
@@ -19,23 +18,27 @@ def listar_especialidades():
 
 @especialidad_bp.route("/especialidades/nueva", methods=["GET", "POST"])
 def nueva_especialidad():
-
     if request.method == "POST":
+        nombre = request.form.get("nombre", "").strip()
+        descripcion = request.form.get("descripcion", "").strip()
 
-        nombre = request.form["nombre"]
-        descripcion = request.form["descripcion"]
+        if not nombre:
+            flash("El nombre de la especialidad es obligatorio.", "error")
+            return render_template("nueva_especialidad.html")
 
         especialidad = Especialidad(
             nombre=nombre,
             descripcion=descripcion
         )
 
-        db.session.add(especialidad)
-        db.session.commit()
-
-        return redirect(
-            url_for("especialidad.listar_especialidades")
-        )
+        try:
+            db.session.add(especialidad)
+            db.session.commit()
+            flash("Especialidad creada correctamente.", "success")
+            return redirect(url_for("especialidad.listar_especialidades"))
+        except SQLAlchemyError:
+            db.session.rollback()
+            flash("No se pudo crear la especialidad.", "error")
 
     return render_template("nueva_especialidad.html")
 
@@ -45,19 +48,29 @@ def nueva_especialidad():
     methods=["GET", "POST"]
 )
 def editar_especialidad(id):
-
     especialidad = Especialidad.query.get_or_404(id)
 
     if request.method == "POST":
+        nombre = request.form.get("nombre", "").strip()
+        descripcion = request.form.get("descripcion", "").strip()
 
-        especialidad.nombre = request.form["nombre"]
-        especialidad.descripcion = request.form["descripcion"]
+        if not nombre:
+            flash("El nombre de la especialidad es obligatorio.", "error")
+            return render_template(
+                "editar_especialidad.html",
+                especialidad=especialidad
+            )
 
-        db.session.commit()
+        especialidad.nombre = nombre
+        especialidad.descripcion = descripcion
 
-        return redirect(
-            url_for("especialidad.listar_especialidades")
-        )
+        try:
+            db.session.commit()
+            flash("Especialidad actualizada correctamente.", "success")
+            return redirect(url_for("especialidad.listar_especialidades"))
+        except SQLAlchemyError:
+            db.session.rollback()
+            flash("No se pudo actualizar la especialidad.", "error")
 
     return render_template(
         "editar_especialidad.html",
@@ -65,14 +78,22 @@ def editar_especialidad(id):
     )
 
 
-@especialidad_bp.route("/especialidades/eliminar/<int:id>")
+@especialidad_bp.route(
+    "/especialidades/eliminar/<int:id>",
+    methods=["POST"]
+)
 def eliminar_especialidad(id):
-
     especialidad = Especialidad.query.get_or_404(id)
 
-    db.session.delete(especialidad)
-    db.session.commit()
+    try:
+        db.session.delete(especialidad)
+        db.session.commit()
+        flash("Especialidad eliminada correctamente.", "success")
+    except SQLAlchemyError:
+        db.session.rollback()
+        flash(
+            "No se pudo eliminar la especialidad. Comprueba si tiene médicos asociados.",
+            "error"
+        )
 
-    return redirect(
-        url_for("especialidad.listar_especialidades")
-    )
+    return redirect(url_for("especialidad.listar_especialidades"))

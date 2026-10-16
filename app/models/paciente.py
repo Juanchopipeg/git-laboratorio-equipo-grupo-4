@@ -1,10 +1,6 @@
+
 from app import db
 
-citas = db.relationship(
-    "Cita",
-    backref="paciente",
-    lazy=True
-)
 
 class Paciente(db.Model):
     __tablename__ = "pacientes"
@@ -12,6 +8,12 @@ class Paciente(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
     apellido = db.Column(db.String(100), nullable=False)
-    documento = db.Column(db.String(20), unique=True, nullable=False)
+    documento = db.Column(
+        db.String(20),
+        unique=True,
+        nullable=False
+    )
     telefono = db.Column(db.String(20))
     correo = db.Column(db.String(120))
+    historial_clinico = db.Column(db.Text, nullable=True)
+

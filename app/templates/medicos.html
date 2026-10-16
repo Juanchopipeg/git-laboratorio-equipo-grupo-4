@@ -1,99 +1,70 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Médicos</title>
-</head>
 
-<body>
+{% extends "base.html" %}
 
-    <h1>Listado de Médicos</h1>
+{% block title %}Listado de Médicos{% endblock %}
 
-    <a href="/medicos/nuevo">
-        Nuevo Médico
+{% block content %}
+
+<h2>Listado de Médicos</h2>
+
+<p>
+    <a href="{{ url_for('medico.nuevo_medico') }}">
+        + Registrar nuevo médico
     </a>
+</p>
 
-    <br><br>
+{% if medicos %}
+    <div style="overflow-x: auto;">
+        <table border="1" cellpadding="8" cellspacing="0"
+               style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Especialidad</th>
+                    <th>Teléfono</th>
+                    <th>Correo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
 
-    <table border="1">
+            <tbody>
+                {% for medico in medicos %}
+                    <tr>
+                        <td>{{ medico.id }}</td>
+                        <td>{{ medico.nombre }}</td>
+                        <td>
+                            {% if medico.especialidad_relacion %}
+                                {{ medico.especialidad_relacion.nombre }}
+                            {% else %}
+                                {{ medico.especialidad }}
+                            {% endif %}
+                        </td>
+                        <td>{{ medico.telefono or 'No registrado' }}</td>
+                        <td>{{ medico.correo or 'No registrado' }}</td>
+                        <td>
+                            <a href="{{ url_for('medico.editar_medico', id=medico.id) }}">
+                                Editar
+                            </a>
 
-        <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Especialidad</th>
-            <th>Teléfono</th>
-            <th>Correo</th>
-            <th>Acciones</th>
-        </tr>
+                            |
 
-        {% for medico in medicos %}
+                            <form
+                                action="{{ url_for('medico.eliminar_medico', id=medico.id) }}"
+                                method="POST"
+                                style="display: inline;"
+                                onsubmit="return confirm('¿Desea eliminar este médico?');"
+                            >
+                                <button type="submit">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p>No hay médicos registrados.</p>
+{% endif %}
 
-        <tr>
-
-            <td>
-                {{ medico.id }}
-            </td>
-
-            <td>
-                {{ medico.nombre }}
-            </td>
-
-            <td>
-                {% if medico.especialidad_relacion %}
-                    {{ medico.especialidad_relacion.nombre }}
-                {% else %}
-                    {{ medico.especialidad }}
-                {% endif %}
-            </td>
-
-            <td>
-                {{ medico.telefono }}
-            </td>
-
-            <td>
-                {{ medico.correo }}
-            </td>
-
-            <td>
-
-                <a href="/medicos/editar/{{ medico.id }}">
-                    Editar
-                </a>
-
-                |
-
-                <a
-                    href="/medicos/eliminar/{{ medico.id }}"
-                    onclick="return confirm('¿Desea eliminar este médico?')"
-                >
-                    Eliminar
-                </a>
-
-            </td>
-
-        </tr>
-
-        {% endfor %}
-
-    </table>
-
-    <br>
-
-    <a href="/especialidades">
-        Ir a Especialidades
-    </a>
-
-    <br><br>
-
-    <a href="/pacientes">
-        Ir a Pacientes
-    </a>
-
-    <br><br>
-
-    <a href="/citas">
-        Ir a Citas
-    </a>
-
-</body>
-</html>
+{% endblock %}

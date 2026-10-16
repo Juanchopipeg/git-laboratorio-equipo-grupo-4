@@ -1,147 +1,152 @@
-<!DOCTYPE html>
-<html lang="es">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Disponibilidad Médica</title>
-</head>
+{% extends "base.html" %}
 
-<body>
+{% block title %}Disponibilidad médica{% endblock %}
 
-    <h1>Consultar Disponibilidad Médica</h1>
+{% block content %}
 
-    <form method="POST">
+<h2>Consultar disponibilidad médica</h2>
 
-        <label>Médico:</label>
+{% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% if mensajes %}
+        {% for categoria, mensaje in mensajes %}
+            <p style="color: {% if categoria == 'error' %}red{% else %}green{% endif %};">
+                {{ mensaje }}
+            </p>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<form method="POST">
+
+    <p>
+        <label for="medico_id">Médico:</label>
         <br>
 
-        <select name="medico_id" required>
-
-            <option value="">
-                Seleccione un médico
-            </option>
+        <select name="medico_id" id="medico_id" required>
+            <option value="">Seleccione un médico</option>
 
             {% for medico in medicos %}
+                <option
+                    value="{{ medico.id }}"
+                    {% if medico_seleccionado and medico.id == medico_seleccionado.id %}
+                        selected
+                    {% endif %}
+                >
+                    {{ medico.nombre }} -
 
-            <option
-                value="{{ medico.id }}"
-                {% if medico_seleccionado and medico.id == medico_seleccionado.id %}
-                    selected
-                {% endif %}
-            >
-
-                {{ medico.nombre }}
-
-                -
-
-                {% if medico.especialidad_relacion %}
-
-                    {{ medico.especialidad_relacion.nombre }}
-
-                {% else %}
-
-                    {{ medico.especialidad }}
-
-                {% endif %}
-
-            </option>
-
+                    {% if medico.especialidad_relacion %}
+                        {{ medico.especialidad_relacion.nombre }}
+                    {% else %}
+                        {{ medico.especialidad }}
+                    {% endif %}
+                </option>
             {% endfor %}
-
         </select>
+    </p>
 
-        <br><br>
-
-        <label>Fecha:</label>
+    <p>
+        <label for="fecha">Fecha:</label>
         <br>
 
         <input
             type="date"
+            id="fecha"
             name="fecha"
             value="{{ fecha_seleccionada or '' }}"
+            min="{{ fecha_minima }}"
             required
         >
+    </p>
 
-        <br><br>
+    <button type="submit">Consultar horarios</button>
 
-        <button type="submit">
-            Consultar Disponibilidad
-        </button>
+</form>
 
-    </form>
+{% if medico_seleccionado and fecha_seleccionada %}
 
-    <br>
+    <h3>Horarios de {{ medico_seleccionado.nombre }}</h3>
 
-    {% if medico_seleccionado and fecha_seleccionada %}
+    <p><strong>Fecha:</strong> {{ fecha_seleccionada }}</p>
+    <p>Duración de cada cita: 30 minutos.</p>
+    <p>Horario de atención: lunes a viernes, de 8:00 a 12:00 y de 13:00 a 17:00.</p>
 
-        <h2>
-            Disponibilidad de
-            {{ medico_seleccionado.nombre }}
-            para el día
-            {{ fecha_seleccionada }}
-        </h2>
+    {% if horarios %}
 
-        {% if citas %}
-
-            <h3>Horarios ocupados</h3>
-
-            <table border="1">
-
+        <table border="1" cellpadding="8" cellspacing="0">
+            <thead>
                 <tr>
-                    <th>Hora</th>
+                    <th>Hora de inicio</th>
+                    <th>Hora de finalización</th>
+                    <th>Estado</th>
                     <th>Paciente</th>
                     <th>Motivo</th>
-                    <th>Estado</th>
                 </tr>
+            </thead>
 
-                {% for cita in citas %}
+            <tbody>
+                {% for hora in horarios %}
+                    {% set cita = horarios_ocupados.get(hora) %}
 
-                <tr>
+                    {% set partes = hora.split(':') %}
+                    {% set minutos = partes[1]|int + 30 %}
+                    {% set hora_fin = partes[0]|int + (minutos // 60) %}
 
-                    <td>
-                        {{ cita.hora }}
-                    </td>
+                    <tr>
+                        <td>{{ hora }}</td>
 
-                    <td>
-                        {{ cita.paciente.nombre }}
-                        {{ cita.paciente.apellido }}
-                    </td>
+                        <td>
+                            {{ '%02d:%02d'|format(hora_fin, minutos % 60) }}
+                        </td>
 
-                    <td>
-                        {{ cita.motivo }}
-                    </td>
+                        <td>
+                            {% if cita %}
+                                <strong>OCUPADO</strong>
+                            {% else %}
+                                <strong>DISPONIBLE</strong>
+                            {% endif %}
+                        </td>
 
-                    <td>
-                        OCUPADA
-                    </td>
+                        <td>
+                            {% if cita %}
+                                {{ cita.paciente.nombre }}
+                                {{ cita.paciente.apellido }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
 
-                </tr>
-
+                        <td>
+                            {% if cita %}
+                                {{ cita.motivo or 'Sin motivo indicado' }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                    </tr>
                 {% endfor %}
+            </tbody>
+        </table>
 
-            </table>
+        <h3>Resumen de disponibilidad</h3>
 
-        {% else %}
+        <p>Total de horarios: {{ horarios|length }}</p>
+        <p>Horarios ocupados: {{ horarios_ocupados|length }}</p>
+        <p>
+            Horarios disponibles:
+            {{ horarios|length - horarios_ocupados|length }}
+        </p>
 
-            <p>
-                No hay citas registradas para este médico
-                en la fecha seleccionada.
-            </p>
+    {% else %}
 
-            <p>
-                Todos los horarios están disponibles.
-            </p>
-
-        {% endif %}
+        <p>No hay horarios de atención para la fecha seleccionada.</p>
 
     {% endif %}
 
-    <br>
+{% endif %}
 
-    <a href="/citas">
-        Volver a Citas
-    </a>
+<p>
+    <a href="{{ url_for('cita.listar_citas') }}">Volver al listado de citas</a>
+</p>
 
-</body>
-
-</html>
+{% endblock %}

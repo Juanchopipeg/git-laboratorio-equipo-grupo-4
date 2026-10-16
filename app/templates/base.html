@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema de Citas Médicas{% endblock %}</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #263238;
+        }
+
+        header {
+            background: #1565c0;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        nav {
+            background: #0d47a1;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            padding: 10px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 15px;
+            border-radius: 5px;
+        }
+
+        nav a:hover {
+            background: #1976d2;
+        }
+
+        main {
+            width: 94%;
+            max-width: 1200px;
+            margin: 25px auto;
+            padding: 25px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px #00000015;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #607d8b;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Sistema de Citas Médicas</h1>
+        <p>Administración de pacientes, médicos y citas</p>
+    </header>
+
+    <nav>
+        <a href="{{ url_for('inicio') }}">Inicio</a>
+        <a href="{{ url_for('paciente.listar_pacientes') }}">Pacientes</a>
+        <a href="{{ url_for('medico.listar_medicos') }}">Médicos</a>
+        <a href="{{ url_for('especialidad.listar_especialidades') }}">Especialidades</a>
+        <a href="{{ url_for('cita.listar_citas') }}">Citas</a>
+        <a href="{{ url_for('cita.disponibilidad') }}">Disponibilidad</a>
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        Sistema de Citas Médicas
+    </footer>
+
+</body>
+</html>

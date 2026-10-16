@@ -1,5 +1,14 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
 
+from datetime import date
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    flash,
+    jsonify,
+)
 from app.models.cita import Cita
 from app.models.paciente import Paciente
 from app.models.medico import Medico
@@ -9,24 +18,123 @@ from app import db
 cita_bp = Blueprint("cita", __name__)
 
 
-@cita_bp.route("/citas")
+# Horario de atención: lunes a viernes.
+# Mañana: 08:00 a 12:00.
+# Tarde: 13:00 a 17:00.
+# Cada cita dura 30 minutos.
+def generar_horarios():
+    horarios = []
+
+    for hora in range(8, 12):
+        horarios.append(f"{hora:02d}:00")
+        horarios.append(f"{hora:02d}:30")
+
+    for hora in range(13, 17):
+        horarios.append(f"{hora:02d}:00")
+        horarios.append(f"{hora:02d}:30")
+
+    return horarios
+
+
+def es_dia_atencion(fecha):
+    fecha_obj = date.fromisoformat(fecha)
+    return fecha_obj.weekday() < 5
+
+
+def obtener_datos_formulario():
+    fecha = request.form.get("fecha", "").strip()
+    hora = request.form.get("hora", "").strip()
+    motivo = request.form.get("motivo", "").strip()
+    paciente_id = request.form.get("paciente_id", "").strip()
+    medico_id = request.form.get("medico_id", "").strip()
+
+    if not all([fecha, hora, paciente_id, medico_id]):
+        return None, "Completa todos los campos obligatorios."
+
+    try:
+        fecha_obj = date.fromisoformat(fecha)
+        paciente_id = int(paciente_id)
+        medico_id = int(medico_id)
+    except (ValueError, TypeError):
+        return None, "La fecha, el paciente o el médico no son válidos."
+
+    if fecha_obj < date.today():
+        return None, "No puedes registrar citas en fechas pasadas."
+
+    if not es_dia_atencion(fecha):
+        return None, "Solo se pueden reservar citas de lunes a viernes."
+
+    if hora not in generar_horarios():
+        return None, "Selecciona un horario válido de 30 minutos."
+
+    paciente = db.session.get(Paciente, paciente_id)
+    medico = db.session.get(Medico, medico_id)
+
+    if paciente is None:
+        return None, "El paciente seleccionado no existe."
+
+    if medico is None:
+        return None, "El médico seleccionado no existe."
+
+    datos = {
+        "fecha": fecha,
+        "hora": hora,
+        "motivo": motivo or None,
+        "paciente_id": paciente_id,
+        "medico_id": medico_id,
+    }
+
+    return datos, None
+
+
+def existe_cita(fecha, hora, medico_id, excluir_id=None):
+    consulta = Cita.query.filter_by(
+        fecha=fecha,
+        hora=hora,
+        medico_id=medico_id,
+    )
+
+    if excluir_id is not None:
+        consulta = consulta.filter(Cita.id != excluir_id)
+
+    return consulta.first() is not None
+
+
+def render_formulario_nueva_cita():
+    pacientes = Paciente.query.order_by(Paciente.nombre).all()
+    medicos = Medico.query.order_by(Medico.nombre).all()
+
+    return render_template(
+        "nueva_cita.html",
+        pacientes=pacientes,
+        medicos=medicos,
+        fecha_minima=date.today().isoformat(),
+    )
+
+
+# Listar citas y permitir filtrar por paciente o médico.
+@cita_bp.route("/citas", methods=["GET"])
 def listar_citas():
-
-    paciente_id = request.args.get("paciente_id")
-    medico_id = request.args.get("medico_id")
-
-    pacientes = Paciente.query.all()
-    medicos = Medico.query.all()
+    paciente_id = request.args.get("paciente_id", "").strip()
+    medico_id = request.args.get("medico_id", "").strip()
 
     consulta = Cita.query
 
     if paciente_id:
-        consulta = consulta.filter_by(paciente_id=paciente_id)
+        try:
+            consulta = consulta.filter_by(paciente_id=int(paciente_id))
+        except ValueError:
+            flash("El paciente seleccionado no es válido.", "error")
 
     if medico_id:
-        consulta = consulta.filter_by(medico_id=medico_id)
+        try:
+            consulta = consulta.filter_by(medico_id=int(medico_id))
+        except ValueError:
+            flash("El médico seleccionado no es válido.", "error")
 
-    citas = consulta.all()
+    citas = consulta.order_by(Cita.fecha, Cita.hora).all()
+    pacientes = Paciente.query.order_by(Paciente.nombre).all()
+    medicos = Medico.query.order_by(Medico.nombre).all()
 
     return render_template(
         "citas.html",
@@ -34,191 +142,223 @@ def listar_citas():
         pacientes=pacientes,
         medicos=medicos,
         paciente_id=paciente_id,
-        medico_id=medico_id
+        medico_id=medico_id,
     )
 
 
+# Formulario para registrar una cita.
 @cita_bp.route("/citas/nueva", methods=["GET", "POST"])
 def nueva_cita():
-
-    pacientes = Paciente.query.all()
-    medicos = Medico.query.all()
-
     if request.method == "POST":
+        datos, error = obtener_datos_formulario()
 
-        fecha = request.form["fecha"]
-        hora = request.form["hora"]
-        motivo = request.form["motivo"]
-        paciente_id = request.form["paciente_id"]
-        medico_id = request.form["medico_id"]
+        if error:
+            flash(error, "error")
+            return render_formulario_nueva_cita(), 400
 
-        # Verificar si el médico ya tiene una cita
-        # en la misma fecha y hora.
-        cita_existente = Cita.query.filter_by(
-            fecha=fecha,
-            hora=hora,
-            medico_id=medico_id
-        ).first()
-
-        if cita_existente:
-
+        if existe_cita(
+            datos["fecha"],
+            datos["hora"],
+            datos["medico_id"],
+        ):
             flash(
-                "El médico ya tiene una cita reservada "
-                "para esa fecha y hora.",
-                "error"
+                "Ese horario ya está ocupado para el médico seleccionado.",
+                "error",
             )
+            return render_formulario_nueva_cita(), 409
 
-            return render_template(
-                "nueva_cita.html",
-                pacientes=pacientes,
-                medicos=medicos
-            )
+        try:
+            cita = Cita(**datos)
+            db.session.add(cita)
+            db.session.commit()
 
-        # Crear la nueva cita
-        cita = Cita(
-            fecha=fecha,
-            hora=hora,
-            motivo=motivo,
-            paciente_id=paciente_id,
-            medico_id=medico_id
-        )
+            flash("La cita se registró correctamente.", "success")
+            return redirect(url_for("cita.listar_citas"))
 
-        db.session.add(cita)
-        db.session.commit()
+        except Exception:
+            db.session.rollback()
+            flash("No se pudo registrar la cita. Inténtalo de nuevo.", "error")
+            return render_formulario_nueva_cita(), 500
 
-        flash(
-            "La cita fue registrada correctamente.",
-            "success"
-        )
-
-        return redirect(
-            url_for("cita.listar_citas")
-        )
-
-    return render_template(
-        "nueva_cita.html",
-        pacientes=pacientes,
-        medicos=medicos
-    )
+    return render_formulario_nueva_cita()
 
 
+# Consultar automáticamente los horarios disponibles.
+@cita_bp.route("/citas/horarios-disponibles", methods=["GET"])
+def horarios_disponibles():
+    medico_id = request.args.get("medico_id", "").strip()
+    fecha = request.args.get("fecha", "").strip()
+
+    try:
+        medico_id = int(medico_id)
+        fecha_obj = date.fromisoformat(fecha)
+    except (ValueError, TypeError):
+        return jsonify({
+            "error": "Selecciona un médico y una fecha válida."
+        }), 400
+
+    if fecha_obj < date.today():
+        return jsonify({
+            "error": "No puedes reservar en una fecha pasada."
+        }), 400
+
+    if not es_dia_atencion(fecha):
+        return jsonify({
+            "error": "La atención es de lunes a viernes."
+        }), 400
+
+    medico = db.session.get(Medico, medico_id)
+
+    if medico is None:
+        return jsonify({
+            "error": "El médico seleccionado no existe."
+        }), 404
+
+    citas = Cita.query.filter_by(
+        medico_id=medico_id,
+        fecha=fecha,
+    ).all()
+
+    horarios_ocupados = {cita.hora for cita in citas}
+
+    horarios_libres = [
+        hora for hora in generar_horarios()
+        if hora not in horarios_ocupados
+    ]
+
+    return jsonify({"horarios": horarios_libres})
+
+
+# Editar una cita existente.
 @cita_bp.route("/citas/editar/<int:id>", methods=["GET", "POST"])
 def editar_cita(id):
+    cita = db.session.get(Cita, id)
 
-    cita = Cita.query.get_or_404(id)
-
-    pacientes = Paciente.query.all()
-    medicos = Medico.query.all()
+    if cita is None:
+        flash("La cita que buscas no existe.", "error")
+        return redirect(url_for("cita.listar_citas"))
 
     if request.method == "POST":
+        datos, error = obtener_datos_formulario()
 
-        fecha = request.form["fecha"]
-        hora = request.form["hora"]
-        motivo = request.form["motivo"]
-        paciente_id = request.form["paciente_id"]
-        medico_id = request.form["medico_id"]
-
-        # Verificar si existe OTRA cita
-        # con el mismo médico, fecha y hora.
-        cita_existente = Cita.query.filter(
-            Cita.fecha == fecha,
-            Cita.hora == hora,
-            Cita.medico_id == medico_id,
-            Cita.id != cita.id
-        ).first()
-
-        if cita_existente:
-
+        if error:
+            flash(error, "error")
+        elif existe_cita(
+            datos["fecha"],
+            datos["hora"],
+            datos["medico_id"],
+            excluir_id=cita.id,
+        ):
             flash(
-                "El médico ya tiene otra cita reservada "
-                "para esa fecha y hora.",
-                "error"
+                "Ese horario ya está ocupado para el médico seleccionado.",
+                "error",
             )
+        else:
+            try:
+                cita.fecha = datos["fecha"]
+                cita.hora = datos["hora"]
+                cita.motivo = datos["motivo"]
+                cita.paciente_id = datos["paciente_id"]
+                cita.medico_id = datos["medico_id"]
 
-            return render_template(
-                "editar_cita.html",
-                cita=cita,
-                pacientes=pacientes,
-                medicos=medicos
-            )
+                db.session.commit()
+                flash("La cita se actualizó correctamente.", "success")
+                return redirect(url_for("cita.listar_citas"))
 
-        # Actualizar la cita
-        cita.fecha = fecha
-        cita.hora = hora
-        cita.motivo = motivo
-        cita.paciente_id = paciente_id
-        cita.medico_id = medico_id
+            except Exception:
+                db.session.rollback()
+                flash("No se pudo actualizar la cita.", "error")
 
-        db.session.commit()
-
-        flash(
-            "La cita fue actualizada correctamente.",
-            "success"
-        )
-
-        return redirect(
-            url_for("cita.listar_citas")
-        )
+    pacientes = Paciente.query.order_by(Paciente.nombre).all()
+    medicos = Medico.query.order_by(Medico.nombre).all()
 
     return render_template(
         "editar_cita.html",
         cita=cita,
         pacientes=pacientes,
-        medicos=medicos
+        medicos=medicos,
     )
 
 
-@cita_bp.route("/citas/eliminar/<int:id>")
+# Cancelar una cita mediante POST.
+@cita_bp.route("/citas/eliminar/<int:id>", methods=["POST"])
 def eliminar_cita(id):
+    cita = db.session.get(Cita, id)
 
-    cita = Cita.query.get_or_404(id)
+    if cita is None:
+        flash("La cita no existe o ya fue cancelada.", "error")
+        return redirect(url_for("cita.listar_citas"))
 
-    db.session.delete(cita)
-    db.session.commit()
+    try:
+        db.session.delete(cita)
+        db.session.commit()
+        flash("La cita se canceló correctamente.", "success")
 
-    flash(
-        "La cita fue cancelada correctamente.",
-        "success"
-    )
+    except Exception:
+        db.session.rollback()
+        flash("No se pudo cancelar la cita.", "error")
 
-    return redirect(
-        url_for("cita.listar_citas")
-    )
-    
+    return redirect(url_for("cita.listar_citas"))
+
+
+# Consultar todos los horarios de un médico en una fecha.
 @cita_bp.route("/disponibilidad", methods=["GET", "POST"])
 def disponibilidad():
-
-    medicos = Medico.query.all()
-
+    medicos = Medico.query.order_by(Medico.nombre).all()
+    horarios = generar_horarios()
     citas = []
-
+    horarios_ocupados = {}
     medico_seleccionado = None
-
     fecha_seleccionada = None
 
     if request.method == "POST":
+        medico_id = request.form.get("medico_id", "").strip()
+        fecha = request.form.get("fecha", "").strip()
 
-        medico_id = request.form["medico_id"]
+        try:
+            medico_id = int(medico_id)
+            fecha_obj = date.fromisoformat(fecha)
+        except (ValueError, TypeError):
+            flash("Selecciona un médico y una fecha válida.", "error")
+            return render_template(
+                "disponibilidad.html",
+                medicos=medicos,
+                citas=citas,
+                horarios=horarios,
+                horarios_ocupados=horarios_ocupados,
+                medico_seleccionado=medico_seleccionado,
+                fecha_seleccionada=fecha_seleccionada,
+            )
 
-        fecha = request.form["fecha"]
+        if fecha_obj < date.today():
+            flash("No puedes consultar fechas pasadas.", "error")
 
-        medico_seleccionado = Medico.query.get_or_404(
-            medico_id
-        )
+        elif not es_dia_atencion(fecha):
+            flash("La atención está configurada de lunes a viernes.", "error")
 
-        fecha_seleccionada = fecha
+        else:
+            medico_seleccionado = db.session.get(Medico, medico_id)
 
-        citas = Cita.query.filter_by(
-            medico_id=medico_id,
-            fecha=fecha
-        ).order_by(
-            Cita.hora
-        ).all()
+            if medico_seleccionado is None:
+                flash("El médico seleccionado no existe.", "error")
+            else:
+                fecha_seleccionada = fecha
+
+                citas = Cita.query.filter_by(
+                    medico_id=medico_id,
+                    fecha=fecha,
+                ).order_by(Cita.hora).all()
+
+                horarios_ocupados = {
+                    cita.hora: cita for cita in citas
+                }
 
     return render_template(
         "disponibilidad.html",
         medicos=medicos,
         citas=citas,
+        horarios=horarios,
+        horarios_ocupados=horarios_ocupados,
         medico_seleccionado=medico_seleccionado,
-        fecha_seleccionada=fecha_seleccionada
+        fecha_seleccionada=fecha_seleccionada,
     )

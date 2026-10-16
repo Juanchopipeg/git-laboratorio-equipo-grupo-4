@@ -1,106 +1,86 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Nuevo Médico</title>
-</head>
 
-<body>
+{% extends "base.html" %}
 
-    <h1>Registrar Nuevo Médico</h1>
+{% block title %}Registrar nuevo médico{% endblock %}
 
-    <form method="POST">
+{% block content %}
 
-        <label>Nombre:</label>
-        <br>
+<h2>Registrar nuevo médico</h2>
+
+<form method="POST">
+
+    <p>
+        <label for="nombre">Nombre:</label><br>
         <input
             type="text"
+            id="nombre"
             name="nombre"
             required
         >
+    </p>
 
-        <br><br>
-
-        <label>Especialidad:</label>
-        <br>
+    <p>
+        <label for="especialidad_id">Especialidad:</label><br>
 
         <select name="especialidad_id" id="especialidad_id" required>
-
-            <option value="">
-                Seleccione una especialidad
-            </option>
+            <option value="">Seleccione una especialidad</option>
 
             {% for especialidad in especialidades %}
-
-            <option
-                value="{{ especialidad.id }}"
-                data-nombre="{{ especialidad.nombre }}"
-            >
-                {{ especialidad.nombre }}
-            </option>
-
+                <option
+                    value="{{ especialidad.id }}"
+                    data-nombre="{{ especialidad.nombre }}"
+                >
+                    {{ especialidad.nombre }}
+                </option>
             {% endfor %}
-
         </select>
+    </p>
 
-        <input
-            type="hidden"
-            name="especialidad"
-            id="especialidad"
-        >
+    <input
+        type="hidden"
+        name="especialidad"
+        id="especialidad"
+    >
 
-        <br><br>
-
-        <label>Teléfono:</label>
-        <br>
+    <p>
+        <label for="telefono">Teléfono:</label><br>
         <input
             type="text"
+            id="telefono"
             name="telefono"
         >
+    </p>
 
-        <br><br>
-
-        <label>Correo:</label>
-        <br>
+    <p>
+        <label for="correo">Correo:</label><br>
         <input
             type="email"
+            id="correo"
             name="correo"
         >
+    </p>
 
-        <br><br>
+    <button type="submit">Guardar médico</button>
 
-        <button type="submit">
-            Guardar Médico
-        </button>
+</form>
 
-    </form>
-
-    <br>
-
-    <a href="/medicos">
-        Volver a Médicos
+<p>
+    <a href="{{ url_for('medico.listar_medicos') }}">
+        Volver al listado de médicos
     </a>
+</p>
 
+<script>
+    const especialidadSelect =
+        document.getElementById("especialidad_id");
 
-    <script>
+    const especialidadTexto =
+        document.getElementById("especialidad");
 
-        const especialidadSelect =
-            document.getElementById("especialidad_id");
+    especialidadSelect.addEventListener("change", function () {
+        const opcion = this.options[this.selectedIndex];
+        especialidadTexto.value = opcion.dataset.nombre || "";
+    });
+</script>
 
-        const especialidadTexto =
-            document.getElementById("especialidad");
-
-        especialidadSelect.addEventListener("change", function() {
-
-            const opcion =
-                this.options[this.selectedIndex];
-
-            especialidadTexto.value =
-                opcion.dataset.nombre || "";
-
-        });
-
-    </script>
-
-</body>
-</html>
+{% endblock %}

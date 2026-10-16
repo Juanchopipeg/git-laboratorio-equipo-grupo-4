@@ -1,47 +1,96 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Editar Paciente</title>
-</head>
-<body>
 
-<h1>Editar Paciente</h1>
+{% extends "base.html" %}
+
+{% block title %}Editar paciente{% endblock %}
+
+{% block content %}
+
+<h2>Editar paciente</h2>
+
+{% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% if mensajes %}
+        {% for categoria, mensaje in mensajes %}
+            <p style="color: {% if categoria == 'error' %}red{% else %}green{% endif %};">
+                {{ mensaje }}
+            </p>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
 
 <form method="POST">
 
     <p>
-        <label>Nombre:</label><br>
-        <input type="text" name="nombre" value="{{ paciente.nombre }}" required>
+        <label for="nombre">Nombre:</label><br>
+        <input
+            type="text"
+            id="nombre"
+            name="nombre"
+            value="{{ paciente.nombre }}"
+            required
+        >
     </p>
 
     <p>
-        <label>Apellido:</label><br>
-        <input type="text" name="apellido" value="{{ paciente.apellido }}" required>
+        <label for="apellido">Apellido:</label><br>
+        <input
+            type="text"
+            id="apellido"
+            name="apellido"
+            value="{{ paciente.apellido }}"
+            required
+        >
     </p>
 
     <p>
-        <label>Documento:</label><br>
-        <input type="text" name="documento" value="{{ paciente.documento }}" required>
+        <label for="documento">Documento:</label><br>
+        <input
+            type="text"
+            id="documento"
+            name="documento"
+            value="{{ paciente.documento }}"
+            required
+        >
     </p>
 
     <p>
-        <label>Teléfono:</label><br>
-        <input type="text" name="telefono" value="{{ paciente.telefono }}">
+        <label for="telefono">Teléfono:</label><br>
+        <input
+            type="text"
+            id="telefono"
+            name="telefono"
+            value="{{ paciente.telefono or '' }}"
+        >
     </p>
 
     <p>
-        <label>Correo:</label><br>
-        <input type="email" name="correo" value="{{ paciente.correo }}">
+        <label for="correo">Correo:</label><br>
+        <input
+            type="email"
+            id="correo"
+            name="correo"
+            value="{{ paciente.correo or '' }}"
+        >
     </p>
 
-    <button type="submit">Actualizar</button>
+    <p>
+        <label for="historial_clinico">Historial clínico:</label><br>
+        <textarea
+            id="historial_clinico"
+            name="historial_clinico"
+            rows="5"
+            cols="40"
+            placeholder="Antecedentes médicos, alergias u observaciones relevantes..."
+        >{{ paciente.historial_clinico or '' }}</textarea>
+    </p>
+
+    <button type="submit">Actualizar paciente</button>
 
 </form>
 
-<br>
+<p>
+    <a href="{{ url_for('paciente.listar_pacientes') }}">
+        Volver al listado de pacientes
+    </a>
+</p>
 
-<a href="/pacientes">Volver al listado</a>
-
-</body>
-</html>
+{% endblock %}

@@ -1,173 +1,176 @@
-<!DOCTYPE html>
-<html lang="es">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Nueva Cita</title>
-</head>
+{% extends "base.html" %}
 
-<body>
+{% block title %}Registrar nueva cita médica{% endblock %}
 
-    <h1>Registrar Nueva Cita</h1>
+{% block content %}
 
-    <!-- MENSAJES -->
-    {% with mensajes = get_flashed_messages(with_categories=true) %}
+<h2>Registrar nueva cita médica</h2>
 
-        {% if mensajes %}
+{% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% if mensajes %}
+        {% for categoria, mensaje in mensajes %}
+            <p style="color: {% if categoria == 'error' %}red{% else %}green{% endif %};">
+                {{ mensaje }}
+            </p>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
 
-            {% for categoria, mensaje in mensajes %}
+<form method="POST" action="{{ url_for('cita.nueva_cita') }}">
 
-                {% if categoria == "error" %}
+    <p>
+        <label for="paciente_id">Paciente:</label>
+        <br>
 
-                    <div>
-                        <p>
-                            <strong>
-                                ❌ {{ mensaje }}
-                            </strong>
-                        </p>
-                    </div>
+        <select name="paciente_id" id="paciente_id" required>
+            <option value="">Selecciona un paciente</option>
 
-                {% elif categoria == "success" %}
-
-                    <div>
-                        <p>
-                            <strong>
-                                ✅ {{ mensaje }}
-                            </strong>
-                        </p>
-                    </div>
-
-                {% else %}
-
-                    <div>
-                        <p>
-                            <strong>
-                                {{ mensaje }}
-                            </strong>
-                        </p>
-                    </div>
-
-                {% endif %}
-
+            {% for paciente in pacientes %}
+                <option value="{{ paciente.id }}">
+                    {{ paciente.nombre }} {{ paciente.apellido }}
+                </option>
             {% endfor %}
+        </select>
+    </p>
 
-        {% endif %}
+    <p>
+        <label for="medico_id">Médico:</label>
+        <br>
 
-    {% endwith %}
+        <select name="medico_id" id="medico_id" required>
+            <option value="">Selecciona un médico</option>
 
+            {% for medico in medicos %}
+                <option value="{{ medico.id }}">
+                    {{ medico.nombre }}
+                    {% if medico.especialidad_relacion %}
+                        - {{ medico.especialidad_relacion.nombre }}
+                    {% elif medico.especialidad %}
+                        - {{ medico.especialidad }}
+                    {% endif %}
+                </option>
+            {% endfor %}
+        </select>
+    </p>
 
-    <form method="POST">
-
-        <label>Fecha:</label>
+    <p>
+        <label for="fecha">Fecha:</label>
         <br>
 
         <input
             type="date"
             name="fecha"
+            id="fecha"
+            min="{{ fecha_minima }}"
             required
         >
+    </p>
 
-        <br><br>
-
-
-        <label>Hora:</label>
+    <p>
+        <label for="hora">Hora disponible:</label>
         <br>
 
-        <input
-            type="time"
-            name="hora"
-            required
-        >
+        <select name="hora" id="hora" required disabled>
+            <option value="">Primero selecciona médico y fecha</option>
+        </select>
 
-        <br><br>
+        <br>
+        <small>Cada cita dura 30 minutos.</small>
+    </p>
 
-
-        <label>Motivo:</label>
+    <p>
+        <label for="motivo">Motivo de la consulta:</label>
         <br>
 
         <textarea
             name="motivo"
-            rows="4"
-            cols="40"
+            id="motivo"
+            rows="3"
+            maxlength="200"
         ></textarea>
+    </p>
 
-        <br><br>
+    <button type="submit">Registrar cita</button>
 
+</form>
 
-        <label>Paciente:</label>
-        <br>
-
-        <select name="paciente_id" required>
-
-            <option value="">
-                Seleccione un paciente
-            </option>
-
-            {% for paciente in pacientes %}
-
-            <option value="{{ paciente.id }}">
-
-                {{ paciente.nombre }}
-                {{ paciente.apellido }}
-
-            </option>
-
-            {% endfor %}
-
-        </select>
-
-        <br><br>
-
-
-        <label>Médico:</label>
-        <br>
-
-        <select name="medico_id" required>
-
-            <option value="">
-                Seleccione un médico
-            </option>
-
-            {% for medico in medicos %}
-
-            <option value="{{ medico.id }}">
-
-                {{ medico.nombre }}
-
-                -
-
-                {% if medico.especialidad_relacion %}
-
-                    {{ medico.especialidad_relacion.nombre }}
-
-                {% else %}
-
-                    {{ medico.especialidad }}
-
-                {% endif %}
-
-            </option>
-
-            {% endfor %}
-
-        </select>
-
-        <br><br>
-
-
-        <button type="submit">
-            Guardar Cita
-        </button>
-
-    </form>
-
-
-    <br>
-
-    <a href="/citas">
-        Volver a Citas
+<p>
+    <a href="{{ url_for('cita.listar_citas') }}">
+        Volver al listado de citas
     </a>
+</p>
 
-</body>
+<script>
+    const medicoSelect = document.getElementById("medico_id");
+    const fechaInput = document.getElementById("fecha");
+    const horaSelect = document.getElementById("hora");
 
-</html>
+    async function cargarHorarios() {
+        const medicoId = medicoSelect.value;
+        const fecha = fechaInput.value;
+
+        horaSelect.innerHTML = "";
+        horaSelect.disabled = true;
+
+        if (!medicoId || !fecha) {
+            horaSelect.add(
+                new Option("Primero selecciona médico y fecha", "")
+            );
+            return;
+        }
+
+        horaSelect.add(
+            new Option("Consultando horarios...", "")
+        );
+
+        try {
+            const respuesta = await fetch(
+                `/citas/horarios-disponibles?medico_id=${encodeURIComponent(medicoId)}&fecha=${encodeURIComponent(fecha)}`
+            );
+
+            const datos = await respuesta.json();
+
+            horaSelect.innerHTML = "";
+
+            if (!respuesta.ok) {
+                horaSelect.add(
+                    new Option(
+                        datos.error || "No se pudieron consultar los horarios",
+                        ""
+                    )
+                );
+                return;
+            }
+
+            if (!datos.horarios || datos.horarios.length === 0) {
+                horaSelect.add(
+                    new Option("No hay horarios disponibles", "")
+                );
+                return;
+            }
+
+            horaSelect.add(
+                new Option("Selecciona una hora", "")
+            );
+
+            datos.horarios.forEach(function(hora) {
+                horaSelect.add(new Option(hora, hora));
+            });
+
+            horaSelect.disabled = false;
+
+        } catch (error) {
+            horaSelect.innerHTML = "";
+
+            horaSelect.add(
+                new Option("Error al consultar horarios", "")
+            );
+        }
+    }
+
+    medicoSelect.addEventListener("change", cargarHorarios);
+    fechaInput.addEventListener("change", cargarHorarios);
+</script>
+
+{% endblock %}
