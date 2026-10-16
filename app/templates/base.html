@@ -4,90 +4,671 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Sistema de Citas Médicas{% endblock %}</title>
+    <title>{% block title %}MediCitas | Sistema Médico{% endblock %}</title>
+
     <style>
+        :root {
+            --azul: #1769aa;
+            --azul-oscuro: #123b63;
+            --azul-claro: #eaf4ff;
+            --turquesa: #16a6a1;
+            --fondo: #f4f8fc;
+            --blanco: #ffffff;
+            --texto: #26364a;
+            --texto-suave: #718096;
+            --borde: #e1eaf2;
+            --verde: #16845b;
+            --rojo: #c83f4f;
+            --sombra: 0 5px 20px rgba(30, 65, 100, 0.07);
+            --radio: 14px;
+        }
+
         * {
             box-sizing: border-box;
         }
 
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f7fb;
-            color: #263238;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: var(--fondo);
+            color: var(--texto);
+            line-height: 1.6;
         }
 
-        header {
-            background: #1565c0;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-
-        header h1 {
-            margin: 0;
-        }
-
-        nav {
-            background: #0d47a1;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 5px;
-            padding: 10px;
-        }
-
-        nav a {
-            color: white;
+        a {
+            color: var(--azul);
             text-decoration: none;
-            padding: 12px 15px;
-            border-radius: 5px;
         }
 
-        nav a:hover {
-            background: #1976d2;
+        a:hover {
+            color: var(--turquesa);
         }
 
-        main {
-            width: 94%;
-            max-width: 1200px;
-            margin: 25px auto;
-            padding: 25px;
+        /* Encabezado */
+        .encabezado {
+            background: linear-gradient(120deg, #123b63, #1769aa);
+            color: white;
+            padding: 20px 5%;
+            box-shadow: 0 4px 16px rgba(18, 59, 99, 0.18);
+        }
+
+        .encabezado-contenido {
+            max-width: 1400px;
+            margin: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .marca {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.16);
+            font-size: 27px;
+        }
+
+        .marca h1 {
+            margin: 0;
+            font-size: 24px;
+            line-height: 1.3;
+        }
+
+        .marca p {
+            margin: 3px 0 0;
+            font-size: 13px;
+            color: #d8eaff;
+        }
+
+        .estado-sistema {
+            padding: 7px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 30px;
+            font-size: 12px;
+            color: white;
+        }
+
+        /* Navegación */
+        .navegacion {
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px #00000015;
+            border-bottom: 1px solid var(--borde);
+            position: relative;
         }
 
-        footer {
+        .menu {
+            max-width: 1400px;
+            margin: auto;
+            padding: 0 5%;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .menu a {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 16px 13px;
+            color: #4c6075;
+            font-size: 14px;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: 0.2s ease;
+        }
+
+        .menu a:hover {
+            color: var(--azul);
+            background: #f5f9ff;
+            border-bottom-color: var(--turquesa);
+        }
+
+        /* Contenido */
+        .contenedor {
+            width: min(1400px, 92%);
+            margin: 32px auto;
+            min-height: 55vh;
+        }
+
+        .titulo-pagina {
+            margin-bottom: 24px;
+        }
+
+        .titulo-pagina h2 {
+            margin: 0 0 5px;
+            color: var(--azul-oscuro);
+            font-size: clamp(23px, 3vw, 30px);
+        }
+
+        .titulo-pagina p {
+            margin: 0;
+            color: var(--texto-suave);
+        }
+
+        /* Paneles y tarjetas */
+        .tarjeta,
+        .panel,
+        .formulario,
+        .tabla-contenedor {
+            background: var(--blanco);
+            border: 1px solid var(--borde);
+            border-radius: var(--radio);
+            box-shadow: var(--sombra);
+        }
+
+        .tarjeta {
+            padding: 24px;
+        }
+
+        .panel {
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* Formularios */
+        form {
+            max-width: 100%;
+        }
+
+        label {
+            display: block;
+            margin: 0 0 7px;
+            color: #344b62;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
+            margin: 0 0 17px;
+            border: 1px solid #d5e1ec;
+            border-radius: 9px;
+            background: white;
+            color: var(--texto);
+            font: inherit;
+            font-size: 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--azul);
+            box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.12);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        input[type="checkbox"],
+        input[type="radio"] {
+            width: auto;
+            margin-right: 7px;
+        }
+
+        input[type="submit"] {
+            width: auto;
+        }
+
+        /* Botones y enlaces con apariencia de botón */
+        button,
+        .boton,
+        input[type="submit"] {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 11px 17px;
+            border: none;
+            border-radius: 9px;
+            background: var(--azul);
+            color: white;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        button:hover,
+        .boton:hover,
+        input[type="submit"]:hover {
+            background: var(--azul-oscuro);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .boton-secundario {
+            background: #eaf4ff;
+            color: var(--azul);
+        }
+
+        .boton-secundario:hover {
+            background: #d6eaff;
+            color: var(--azul-oscuro);
+        }
+
+        .boton-peligro {
+            background: #fff0f1;
+            color: var(--rojo);
+        }
+
+        .boton-peligro:hover {
+            background: var(--rojo);
+            color: white;
+        }
+
+        .boton-exito {
+            background: var(--verde);
+            color: white;
+        }
+
+        .acciones {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Tablas */
+        .tabla-contenedor {
+            width: 100%;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead {
+            background: #edf5fc;
+        }
+
+        th {
+            padding: 15px 16px;
+            color: var(--azul-oscuro);
+            text-align: left;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-top: 1px solid #edf1f5;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background: #f7fbff;
+        }
+
+        td form {
+            display: inline;
+        }
+
+        td form button {
+            margin: 2px;
+        }
+
+        /* Mensajes de confirmación y error de Flask */
+        .mensajes {
+            margin-bottom: 20px;
+        }
+
+        .mensaje {
+            padding: 13px 16px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            font-size: 14px;
+            border: 1px solid transparent;
+        }
+
+        .mensaje.success {
+            background: #e8f8ef;
+            color: #176b43;
+            border-color: #b9e9ce;
+        }
+
+        .mensaje.error,
+        .mensaje.danger {
+            background: #fff0f1;
+            color: #a32c3b;
+            border-color: #f3c5cb;
+        }
+
+        .mensaje.warning {
+            background: #fff7e6;
+            color: #875b09;
+            border-color: #f5dfab;
+        }
+
+        .mensaje.info {
+            background: #eaf4ff;
+            color: #185a92;
+            border-color: #c8e2fa;
+        }
+
+        /* Estados de citas */
+        .estado {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .estado-disponible {
+            background: #e4f8ee;
+            color: #16764b;
+        }
+
+        .estado-ocupado {
+            background: #fff0f1;
+            color: #b52e42;
+        }
+
+        /* Pie de página */
+        .pie {
+            margin-top: 45px;
+            padding: 23px 5%;
+            background: white;
+            border-top: 1px solid var(--borde);
+            color: var(--texto-suave);
             text-align: center;
-            padding: 20px;
-            color: #607d8b;
+            font-size: 13px;
         }
-    </style>
-</head>
-<body>
 
-    <header>
-        <h1>Sistema de Citas Médicas</h1>
-        <p>Administración de pacientes, médicos y citas</p>
+        .pie p {
+            margin: 4px 0;
+        }
+
+        /* Adaptación a pantallas pequeñas */
+        @media (max-width: 700px) {
+            .encabezado {
+                padding: 17px 4%;
+            }
+
+            .marca h1 {
+                font-size: 20px;
+            }
+
+            .estado-sistema {
+                display: none;
+            }
+
+            .menu {
+                padding: 8px 4%;
+                gap: 2px;
+            }
+
+            .menu a {
+                padding: 10px 9px;
+                font-size: 13px;
+            }
+
+            .contenedor {
+                width: 94%;
+                margin: 22px auto;
+            }
+
+            .tarjeta,
+            .panel {
+                padding: 16px;
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+            th,
+            td {
+                padding: 11px;
+            }
+
+            button,
+            .boton {
+                max-width: 100%;
+            }
+        
+        }
+        
+/* Tablas modernas para MediCitas */
+.tabla-contenedor {
+    overflow-x: auto;
+    border: 1px solid #dce7f1;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 6px 22px rgba(24, 65, 105, 0.07);
+    margin: 22px 0;
+}
+
+.tabla-contenedor table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: none;
+    font-size: 14px;
+}
+
+.tabla-contenedor thead {
+    background: #1769aa;
+}
+
+.tabla-contenedor th {
+    background: #1769aa;
+    color: #ffffff;
+    padding: 15px 16px;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+    border: none;
+}
+
+.tabla-contenedor th:first-child {
+    border-top-left-radius: 12px;
+}
+
+.tabla-contenedor th:last-child {
+    border-top-right-radius: 12px;
+}
+
+.tabla-contenedor td {
+    padding: 13px 16px;
+    border: none;
+    border-bottom: 1px solid #eaf0f6;
+    color: #344b62;
+    vertical-align: middle;
+    line-height: 1.5;
+}
+
+.tabla-contenedor tbody tr:nth-child(even) {
+    background: #f5f9fd;
+}
+
+.tabla-contenedor tbody tr:hover {
+    background: #eaf4ff;
+    transition: background 0.2s ease;
+}
+
+.tabla-contenedor tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.tabla-contenedor td form {
+    display: inline-block;
+    margin: 3px 0;
+}
+
+.tabla-contenedor td a {
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.tabla-contenedor td a:hover {
+    text-decoration: underline;
+}
+
+.tabla-contenedor td button {
+    padding: 9px 13px;
+    border-radius: 8px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.tabla-contenedor td button.boton-peligro {
+    background: #fff0f1;
+    color: #bd3446;
+    border: 1px solid #f4d0d5;
+}
+
+.tabla-contenedor td button.boton-peligro:hover {
+    background: #bd3446;
+    color: #ffffff;
+}
+
+@media (max-width: 700px) {
+    .tabla-contenedor th,
+    .tabla-contenedor td {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+}
+
+.usuario-sesion {
+    color: white;
+    margin: 0 10px;
+    font-weight: 500;
+}
+
+.btn-cerrar-sesion {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 9px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-cerrar-sesion:hover {
+    background-color: #b02a37;
+}
+
+.sesion-superior {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 24px;
+    background: #f4f7fb;
+    color: #334155;
+    font-size: 14px;
+}
+
+.sesion-superior form {
+    margin: 0;
+}
+
+.btn-cerrar-sesion {
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 13px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-cerrar-sesion:hover {
+    background: #b02a37;
+}
+
+    </style>
+
+</head>
+
+<body>
+    <header class="encabezado">
+        <div class="encabezado-contenido">
+            <div class="marca">
+                <div class="logo">✚</div>
+                <div>
+                    <h1>MediCitas</h1>
+                    <p>Sistema de gestión de citas médicas</p>
+                </div>
+            </div>
+
+            <div class="estado-sistema">
+                ● Sistema de gestión médica
+            </div>
+
+            {% if session.get('usuario_id') %}
+                <div class="sesion-superior">
+                    <span class="usuario-sesion">
+                        Hola, {{ session.get('nombre_usuario', 'Usuario') }}
+                    </span>
+
+                    <form action="{{ url_for('auth.logout') }}" method="POST">
+                        <button type="submit" class="btn-cerrar-sesion">
+                            Cerrar sesión
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
     </header>
 
-    <nav>
-        <a href="{{ url_for('inicio') }}">Inicio</a>
-        <a href="{{ url_for('paciente.listar_pacientes') }}">Pacientes</a>
-        <a href="{{ url_for('medico.listar_medicos') }}">Médicos</a>
-        <a href="{{ url_for('especialidad.listar_especialidades') }}">Especialidades</a>
-        <a href="{{ url_for('cita.listar_citas') }}">Citas</a>
-        <a href="{{ url_for('cita.disponibilidad') }}">Disponibilidad</a>
+    <nav class="navegacion">
+        <div class="menu">
+            <a href="{{ url_for('inicio') }}">⌂ Inicio</a>
+            <a href="{{ url_for('paciente.listar_pacientes') }}">♙ Pacientes</a>
+            <a href="{{ url_for('medico.listar_medicos') }}">⚕ Médicos</a>
+            <a href="{{ url_for('especialidad.listar_especialidades') }}">✚ Especialidades</a>
+            <a href="{{ url_for('cita.listar_citas') }}">▦ Citas</a>
+            <a href="{{ url_for('cita.disponibilidad') }}">◷ Disponibilidad</a>
+        </div>
     </nav>
 
-    <main>
+    <main class="contenedor">
+        {% with mensajes = get_flashed_messages(with_categories=true) %}
+            {% if mensajes %}
+                <div class="mensajes">
+                    {% for categoria, mensaje in mensajes %}
+                        <div class="mensaje {{ categoria }}">
+                            {{ mensaje }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
         {% block content %}{% endblock %}
     </main>
 
-    <footer>
-        Sistema de Citas Médicas
+    <footer class="pie">
+        <p><strong>MediCitas</strong> · Sistema de gestión de citas médicas</p>
+        <p>Organizando la atención médica de manera sencilla y eficiente.</p>
     </footer>
-
 </body>
 </html>
+

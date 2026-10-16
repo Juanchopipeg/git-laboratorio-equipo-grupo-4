@@ -68,7 +68,8 @@
 
 {% if citas %}
 
-    <table border="1" cellpadding="8" cellspacing="0">
+<div class="tabla-contenedor">
+    <table>
         <thead>
             <tr>
                 <th>ID</th>
@@ -83,39 +84,44 @@
 
         <tbody>
             {% for cita in citas %}
-                <tr>
-                    <td>{{ cita.id }}</td>
+            <tr>
+                <td>{{ cita.id }}</td>
 
-                    <td>
-                        {{ cita.paciente.nombre }}
-                        {{ cita.paciente.apellido }}
-                    </td>
+                <td>
+                    {{ cita.paciente.nombre }}
+                    {{ cita.paciente.apellido }}
+                </td>
 
-                    <td>{{ cita.medico.nombre }}</td>
-                    <td>{{ cita.fecha }}</td>
-                    <td>{{ cita.hora }}</td>
-                    <td>{{ cita.motivo or 'Sin motivo indicado' }}</td>
+                <td>{{ cita.medico.nombre }}</td>
+                <td>{{ cita.fecha }}</td>
+                <td>{{ cita.hora }}</td>
+                <td>{{ cita.motivo or 'Sin motivo indicado' }}</td>
 
-                    <td>
-                        <a href="{{ url_for('cita.editar_cita', id=cita.id) }}">
+                <td>
+                    <div class="acciones">
+                        <a
+                            href="{{ url_for('cita.editar_cita', id=cita.id) }}"
+                            class="boton boton-secundario"
+                        >
                             Editar
                         </a>
-
-                        |
 
                         <form
                             action="{{ url_for('cita.eliminar_cita', id=cita.id) }}"
                             method="POST"
-                            style="display: inline;"
                             onsubmit="return confirm('¿Desea cancelar esta cita?');"
                         >
-                            <button type="submit">Cancelar cita</button>
+                            <button type="submit" class="boton-peligro">
+                                Cancelar cita
+                            </button>
                         </form>
-                    </td>
-                </tr>
+                    </div>
+                </td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
+</div>
 
 {% else %}
 

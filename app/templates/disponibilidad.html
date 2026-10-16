@@ -72,8 +72,9 @@
     <p>Horario de atención: lunes a viernes, de 8:00 a 12:00 y de 13:00 a 17:00.</p>
 
     {% if horarios %}
+<div class="tabla-contenedor">
 
-        <table border="1" cellpadding="8" cellspacing="0">
+        <table>
             <thead>
                 <tr>
                     <th>Hora de inicio</th>
@@ -127,7 +128,7 @@
                 {% endfor %}
             </tbody>
         </table>
-
+     </div>
         <h3>Resumen de disponibilidad</h3>
 
         <p>Total de horarios: {{ horarios|length }}</p>

@@ -1,18 +1,61 @@
 
 {% extends "base.html" %}
 
-{% block title %}Inicio - Sistema de Citas Médicas{% endblock %}
+{% block title %}Inicio | MediCitas{% endblock %}
 
 {% block content %}
-    <h2>Bienvenido al Sistema de Citas Médicas</h2>
+<section class="titulo-pagina">
+    <h2>¡Bienvenido a MediCitas! 👋</h2>
+    <p>Administra la información médica y las citas desde un solo lugar.</p>
+</section>
 
-    <p>Desde aquí puedes administrar la información del sistema.</p>
+<div class="panel" style="background: linear-gradient(120deg, #eaf4ff, #e6fbf8); border: none;">
+    <h3 style="color: #123b63; margin-top: 0;">Tu centro de gestión médica</h3>
+    <p style="color: #526b82; margin-bottom: 0;">
+        Organiza pacientes, administra profesionales y consulta la disponibilidad
+        de horarios de manera sencilla.
+    </p>
+</div>
 
-    <ul>
-        <li><a href="{{ url_for('paciente.listar_pacientes') }}">Gestionar pacientes</a></li>
-        <li><a href="{{ url_for('medico.listar_medicos') }}">Gestionar médicos</a></li>
-        <li><a href="{{ url_for('especialidad.listar_especialidades') }}">Gestionar especialidades</a></li>
-        <li><a href="{{ url_for('cita.listar_citas') }}">Gestionar citas</a></li>
-        <li><a href="{{ url_for('cita.disponibilidad') }}">Consultar disponibilidad</a></li>
-    </ul>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
+
+    <article class="tarjeta">
+        <div style="font-size: 32px;">👥</div>
+        <h3>Pacientes</h3>
+        <p style="color: #718096;">Registra pacientes y consulta su información personal e historial clínico.</p>
+        <a class="boton" href="{{ url_for('paciente.listar_pacientes') }}">Gestionar pacientes →</a>
+    </article>
+
+    <article class="tarjeta">
+        <div style="font-size: 32px;">🩺</div>
+        <h3>Médicos</h3>
+        <p style="color: #718096;">Consulta los profesionales y administra sus datos.</p>
+        <a class="boton" href="{{ url_for('medico.listar_medicos') }}">Ver médicos →</a>
+    </article>
+
+    <article class="tarjeta">
+        <div style="font-size: 32px;">✚</div>
+        <h3>Especialidades</h3>
+        <p style="color: #718096;">Organiza las especialidades disponibles en tu centro médico.</p>
+        <a class="boton" href="{{ url_for('especialidad.listar_especialidades') }}">Ver especialidades →</a>
+    </article>
+
+    <article class="tarjeta">
+        <div style="font-size: 32px;">📅</div>
+        <h3>Citas médicas</h3>
+        <p style="color: #718096;">Consulta, busca, edita y cancela las citas registradas.</p>
+        <div class="acciones">
+            <a class="boton" href="{{ url_for('cita.listar_citas') }}">Ver citas →</a>
+            <a class="boton boton-secundario" href="{{ url_for('cita.nueva_cita') }}">+ Nueva cita</a>
+        </div>
+    </article>
+
+    <article class="tarjeta">
+        <div style="font-size: 32px;">🕒</div>
+        <h3>Disponibilidad</h3>
+        <p style="color: #718096;">Consulta los horarios disponibles y ocupados de los médicos.</p>
+        <a class="boton" href="{{ url_for('cita.disponibilidad') }}">Consultar horarios →</a>
+    </article>
+
+</div>
 {% endblock %}

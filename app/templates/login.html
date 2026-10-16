@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión | MediCitas</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #eaf4ff, #e5f8f6);
+            color: #26364a;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            padding: 35px;
+            border-radius: 20px;
+            background: #fff;
+            box-shadow: 0 15px 45px rgba(18, 59, 99, .13);
+        }
+
+        .logo {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 18px;
+            background: #1769aa;
+            color: #fff;
+            font-size: 34px;
+        }
+
+        h1 {
+            margin: 0;
+            text-align: center;
+            color: #123b63;
+            font-size: 27px;
+        }
+
+        .subtitulo {
+            margin: 8px 0 28px;
+            text-align: center;
+            color: #718096;
+            font-size: 14px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            margin-bottom: 18px;
+            border: 1px solid #d5e1ec;
+            border-radius: 9px;
+            font-size: 15px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #1769aa;
+            box-shadow: 0 0 0 3px rgba(23, 105, 170, .12);
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            border: 0;
+            border-radius: 9px;
+            background: #1769aa;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        button:hover { background: #123b63; }
+
+        .mensaje {
+            padding: 11px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background: #fff0f1;
+            color: #a32c3b;
+            font-size: 14px;
+        }
+
+        .pie {
+            margin-top: 22px;
+            color: #718096;
+            text-align: center;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <main class="login-card">
+        <div class="logo">✚</div>
+        <h1>MediCitas</h1>
+        <p class="subtitulo">Ingresa para administrar el sistema médico</p>
+
+        {% with mensajes = get_flashed_messages(with_categories=true) %}
+            {% for categoria, mensaje in mensajes %}
+                <div class="mensaje">{{ mensaje }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('auth.login') }}">
+            <label for="nombre_usuario">Nombre de usuario</label>
+            <input
+                id="nombre_usuario"
+                name="nombre_usuario"
+                type="text"
+                autocomplete="username"
+                required
+            >
+
+            <label for="password">Contraseña</label>
+            <input
+                id="password"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                required
+            >
+
+            <button type="submit">Iniciar sesión</button>
+        </form>
+
+        <div class="pie">Acceso privado · Sistema de gestión médica</div>
+    </main>
+</body>
+</html>
