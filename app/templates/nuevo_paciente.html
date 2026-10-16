@@ -7,6 +7,17 @@
 <body>
 
     <h1>Registrar Paciente</h1>
+    
+{% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% if mensajes %}
+        {% for categoria, mensaje in mensajes %}
+            <p style="color: {% if categoria == 'error' %}red{% else %}green{% endif %};">
+                {{ mensaje }}
+            </p>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
 
     <form method="POST">
 

@@ -1,61 +1,226 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    flash
+)
+
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+
 from app.models.paciente import Paciente
 from app import db
 
+
 paciente_bp = Blueprint("paciente", __name__)
 
+
+# LISTAR PACIENTES
 @paciente_bp.route("/pacientes")
 def listar_pacientes():
     pacientes = Paciente.query.all()
-    return render_template("pacientes.html", pacientes=pacientes)
 
+    return render_template(
+        "pacientes.html",
+        pacientes=pacientes
+    )
+
+
+# REGISTRAR NUEVO PACIENTE
 @paciente_bp.route("/pacientes/nuevo", methods=["GET", "POST"])
 def nuevo_paciente():
 
     if request.method == "POST":
+        nombre = request.form.get("nombre", "").strip()
+        apellido = request.form.get("apellido", "").strip()
+        documento = request.form.get("documento", "").strip()
+        telefono = request.form.get("telefono", "").strip()
+        correo = request.form.get("correo", "").strip()
+
+        # Validar campos obligatorios
+        if not nombre or not apellido or not documento:
+            flash(
+                "Nombre, apellido y documento son obligatorios.",
+                "error"
+            )
+            return render_template("nuevo_paciente.html")
+
+        # Comprobar si la cédula ya existe
+        paciente_existente = Paciente.query.filter_by(
+            documento=documento
+        ).first()
+
+        if paciente_existente:
+            flash(
+                "Ya existe un paciente con ese documento.",
+                "error"
+            )
+            return render_template("nuevo_paciente.html")
 
         paciente = Paciente(
-            nombre=request.form["nombre"],
-            apellido=request.form["apellido"],
-            documento=request.form["documento"],
-            telefono=request.form["telefono"],
-            correo=request.form["correo"]
+            nombre=nombre,
+            apellido=apellido,
+            documento=documento,
+            telefono=telefono or None,
+            correo=correo or None
         )
 
-        db.session.add(paciente)
-        db.session.commit()
+        try:
+            db.session.add(paciente)
+            db.session.commit()
 
-        return redirect(url_for("paciente.listar_pacientes"))
+            flash(
+                "Paciente registrado correctamente.",
+                "success"
+            )
+
+            return redirect(
+                url_for("paciente.listar_pacientes")
+            )
+
+        except IntegrityError:
+            db.session.rollback()
+
+            flash(
+                "No se pudo registrar el paciente. "
+                "El documento puede estar registrado por otro usuario.",
+                "error"
+            )
+
+        except SQLAlchemyError:
+            db.session.rollback()
+
+            flash(
+                "Ocurrió un error al guardar el paciente. "
+                "Inténtalo nuevamente.",
+                "error"
+            )
+
+        return render_template("nuevo_paciente.html")
 
     return render_template("nuevo_paciente.html")
 
-@paciente_bp.route("/pacientes/editar/<int:id>", methods=["GET", "POST"])
+
+# EDITAR PACIENTE
+@paciente_bp.route(
+    "/pacientes/editar/<int:id>",
+    methods=["GET", "POST"]
+)
 def editar_paciente(id):
 
     paciente = Paciente.query.get_or_404(id)
 
     if request.method == "POST":
-        paciente.nombre = request.form["nombre"]
-        paciente.apellido = request.form["apellido"]
-        paciente.documento = request.form["documento"]
-        paciente.telefono = request.form["telefono"]
-        paciente.correo = request.form["correo"]
+        nombre = request.form.get("nombre", "").strip()
+        apellido = request.form.get("apellido", "").strip()
+        documento = request.form.get("documento", "").strip()
+        telefono = request.form.get("telefono", "").strip()
+        correo = request.form.get("correo", "").strip()
 
-        db.session.commit()
+        # Validar campos obligatorios
+        if not nombre or not apellido or not documento:
+            flash(
+                "Nombre, apellido y documento son obligatorios.",
+                "error"
+            )
 
-        return redirect(url_for("paciente.listar_pacientes"))
+            return render_template(
+                "editar_paciente.html",
+                paciente=paciente
+            )
+
+        # Comprobar si otro paciente tiene la misma cédula
+        paciente_existente = Paciente.query.filter(
+            Paciente.documento == documento,
+            Paciente.id != paciente.id
+        ).first()
+
+        if paciente_existente:
+            flash(
+                "Otro paciente ya tiene ese documento.",
+                "error"
+            )
+
+            return render_template(
+                "editar_paciente.html",
+                paciente=paciente
+            )
+
+        paciente.nombre = nombre
+        paciente.apellido = apellido
+        paciente.documento = documento
+        paciente.telefono = telefono or None
+        paciente.correo = correo or None
+
+        try:
+            db.session.commit()
+
+            flash(
+                "Paciente actualizado correctamente.",
+                "success"
+            )
+
+            return redirect(
+                url_for("paciente.listar_pacientes")
+            )
+
+        except IntegrityError:
+            db.session.rollback()
+
+            flash(
+                "No se pudo actualizar el paciente. "
+                "Comprueba que el documento no esté duplicado.",
+                "error"
+            )
+
+        except SQLAlchemyError:
+            db.session.rollback()
+
+            flash(
+                "Ocurrió un error al actualizar el paciente.",
+                "error"
+            )
+
+        return render_template(
+            "editar_paciente.html",
+            paciente=paciente
+        )
 
     return render_template(
         "editar_paciente.html",
         paciente=paciente
     )
 
-@paciente_bp.route("/pacientes/eliminar/<int:id>")
+
+# ELIMINAR PACIENTE
+@paciente_bp.route(
+    "/pacientes/eliminar/<int:id>",
+    methods=["POST"]
+)
 def eliminar_paciente(id):
 
     paciente = Paciente.query.get_or_404(id)
 
-    db.session.delete(paciente)
-    db.session.commit()
+    try:
+        db.session.delete(paciente)
+        db.session.commit()
 
-    return redirect(url_for("paciente.listar_pacientes"))
+        flash(
+            "Paciente eliminado correctamente.",
+            "success"
+        )
+
+    except SQLAlchemyError:
+        db.session.rollback()
+
+        flash(
+            "No se pudo eliminar el paciente. "
+            "Comprueba si tiene citas asociadas.",
+            "error"
+        )
+
+    return redirect(
+        url_for("paciente.listar_pacientes")
+    )
